@@ -96,6 +96,18 @@ private:
                                   unsigned short val_marker,
                                   bool cht_mode = false);
 
+    /*!
+   * \brief Generic implementation of the isothermal wall also covering CHT cases,
+   * for which the wall temperature is given by GetCHTWallTemperature.
+   */
+  void BC_Isothermal_Wall_Generic_Blowing(CGeometry *geometry,
+                                  CSolver **solver_container,
+                                  CNumerics *conv_numerics,
+                                  CNumerics *visc_numerics,
+                                  CConfig *config,
+                                  unsigned short val_marker,
+                                  bool cht_mode = false);
+
   /*!
    * \brief Generic implementation of the heatflux and heat-transfer/convection walls.
    */
@@ -103,6 +115,18 @@ private:
                                 const CConfig *config,
                                 unsigned short val_marker,
                                 unsigned short kind_boundary);
+
+    /*!
+   * \brief Generic implementation of the heatflux and heat-transfer/convection walls.
+   */
+  /*!
+   * \brief Generic implementation of the heatflux and heat-transfer/convection walls.
+   */
+  void BC_HeatFlux_Wall_Generic_Blowing(const CGeometry *geometry,
+                                const CConfig *config,
+                                unsigned short val_marker,
+                                unsigned short kind_boundary);
+
 
   /*!
    * \brief Compute the viscous contribution for a particular edge.
@@ -193,6 +217,24 @@ public:
                         CConfig *config,
                         unsigned short val_marker) override;
 
+// >>> BLO
+    /*!
+   * \brief Impose a constant heat-flux condition at the wall.
+   * \param[in] geometry - Geometrical definition of the problem.
+   * \param[in] solver_container - Container vector with all the solutions.
+   * \param[in] conv_numerics - Description of the numerical method.
+   * \param[in] visc_numerics - Description of the numerical method.
+   * \param[in] config - Definition of the particular problem.
+   * \param[in] val_marker - Surface marker where the boundary condition is applied.
+   */
+  void BC_HeatFlux_Blowing(CGeometry *geometry,
+                        CSolver **solver_container,
+                        CNumerics *conv_numerics,
+                        CNumerics *visc_numerics,
+                        CConfig *config,
+                        unsigned short val_marker);
+  // <<< BLO
+
   /*!
    * \brief Impose a heat flux by prescribing a heat transfer coefficient and a temperature at infinity.
    * \param[in] geometry - Geometrical definition of the problem.
@@ -218,6 +260,23 @@ public:
                           CNumerics *visc_numerics,
                           CConfig *config,
                           unsigned short val_marker) override;
+
+  
+    /*!
+   * \brief Impose the Navier-Stokes boundary condition (strong).
+   * \param[in] geometry - Geometrical definition of the problem.
+   * \param[in] solver_container - Container vector with all the solutions.
+   * \param[in] conv_numerics - Description of the numerical method.
+   * \param[in] visc_numerics - Description of the numerical method.
+   * \param[in] config - Definition of the particular problem.
+   * \param[in] val_marker - Surface marker where the boundary condition is applied.
+   */
+  void BC_Isothermal_Wall_Blowing(CGeometry *geometry,
+                          CSolver **solver_container,
+                          CNumerics *conv_numerics,
+                          CNumerics *visc_numerics,
+                          CConfig *config,
+                          unsigned short val_marker);
 
   /*!
    * \brief Impose the Navier-Stokes boundary condition (strong) with values from a CHT coupling.

@@ -1159,6 +1159,7 @@ enum BC_TYPE {
   DAMPER_BOUNDARY = 41,       /*!< \brief Damper. */
   CHT_WALL_INTERFACE = 50,    /*!< \brief Domain interface definition. */
   SMOLUCHOWSKI_MAXWELL = 55,  /*!< \brief Smoluchoski/Maxwell wall boundary condition. */
+  BLOWING = 56,             /*!< \brief Blowing constant heat flux wall boundary condition. */
   SEND_RECEIVE = 99,          /*!< \brief Boundary send-receive definition. */
 };
 

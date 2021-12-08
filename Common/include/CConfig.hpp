@@ -206,6 +206,7 @@ private:
   nMarker_Smoluchowski_Maxwell,   /*!< \brief Number of smoluchowski/maxwell wall boundaries. */
   nMarker_Isothermal,             /*!< \brief Number of isothermal wall boundaries. */
   nMarker_HeatFlux,               /*!< \brief Number of constant heat flux wall boundaries. */
+  nMarker_Blowing,                /*!< \brief Number of constant heat flux wall boundaries. BLO */
   nMarker_HeatTransfer,           /*!< \brief Number of heat-transfer/convection wall boundaries. */
   nMarker_EngineExhaust,          /*!< \brief Number of nacelle exhaust flow markers. */
   nMarker_EngineInflow,           /*!< \brief Number of nacelle inflow flow markers. */
@@ -255,6 +256,7 @@ private:
   *Marker_Smoluchowski_Maxwell,   /*!< \brief Smoluchowski/Maxwell wall markers. */
   *Marker_Isothermal,             /*!< \brief Isothermal wall markers. */
   *Marker_HeatFlux,               /*!< \brief Constant heat flux wall markers. */
+  *Marker_Blowing,                /*!< \brief Constant heat flux wall with blowing markers.  BLO */
   *Marker_HeatTransfer,           /*!< \brief Heat-transfer/convection markers. */
   *Marker_RoughWall,              /*!< \brief Constant heat flux wall markers. */
   *Marker_EngineInflow,           /*!< \brief Engine Inflow flow markers. */
@@ -315,6 +317,9 @@ private:
   su2double *HeatTransfer_WallTemp;          /*!< \brief Specified temperatures at infinity alongside heat transfer coefficients. */
   su2double *Wall_Catalycity;                /*!< \brief Specified wall species mass-fractions for catalytic boundaries. */
   su2double *Heat_Flux;                      /*!< \brief Specified wall heat fluxes. */
+  su2double *Blowing;                        /* BLO */
+  su2double *Blowing_Density;
+  su2double *Blowing_VelocityMag;
   su2double *Roughness_Height;               /*!< \brief Equivalent sand grain roughness for the marker according to config file. */
   su2double *Displ_Value;                    /*!< \brief Specified displacement for displacement boundaries. */
   su2double *Load_Value;                     /*!< \brief Specified force for load boundaries. */
@@ -1243,6 +1248,9 @@ private:
 
   void addInletOption(const string name, unsigned short & nMarker_Inlet, string * & Marker_Inlet,
                       su2double* & Ttotal, su2double* & Ptotal, su2double** & FlowDir);
+
+  void addBlowingOption(const string name, unsigned short & nMarker_Blowing, string * & Marker_Blowing,
+                      su2double* & Blowing_Density, su2double* & Blowing_VelocityMag);
 
   template <class Tenum>
   void addRiemannOption(const string name, unsigned short & nMarker_Riemann, string * & Marker_Riemann, unsigned short* & option_field, const map<string, Tenum> & enum_map,
@@ -2940,6 +2948,13 @@ public:
    */
   unsigned short GetnMarker_HeatFlux(void) const { return nMarker_HeatFlux; }
 
+  /*! >>> BLO
+   * \brief Get the total (local) number of heat flux markers.
+   * \return Total number of heat flux markers.
+   */
+  unsigned short GetnMarker_Blowing(void) const { return nMarker_Blowing; }
+  // <<< BLO
+
   /*!
    * \brief Get the total number of rough markers.
    * \return Total number of heat flux markers.
@@ -3153,6 +3168,16 @@ public:
    *         has the marker <i>val_marker</i>.
    */
   string GetMarker_HeatFlux_TagBound(unsigned short val_marker) const { return Marker_HeatFlux[val_marker]; }
+
+// >>> BLO
+  /*!
+   * \brief Get the name of the surface defined in the geometry file.
+   * \param[in] val_marker - Value of the marker in which we are interested.
+   * \return Name that is in the geometry file for the surface that
+   *         has the marker <i>val_marker</i>.
+   */
+  string GetMarker_Blowing_TagBound(unsigned short val_marker) const { return Marker_Blowing[val_marker]; }
+// <<< BLO
 
   /*!
    * \brief Get the tag if the iMarker defined in the geometry file.
@@ -6430,6 +6455,20 @@ public:
    */
   su2double GetInlet_Ptotal(string val_index) const;
 
+    /*!
+   * \brief Get the total pressure at an inlet boundary.
+   * \param[in] val_index - Index corresponding to the inlet boundary.
+   * \return The total pressure.
+   */
+  su2double GetBlowing_Density(string val_index) const;
+
+   /*!
+   * \brief Get the total pressure at an inlet boundary.
+   * \param[in] val_index - Index corresponding to the inlet boundary.
+   * \return The total pressure.
+   */
+  su2double GetBlowing_VelocityMag(string val_index) const;
+
   /*!
    * \brief Set the total pressure at an inlet boundary.
    * \param[in] val_pressure - Pressure value at the inlet boundary.
@@ -6632,6 +6671,16 @@ public:
    * \return The heat flux.
    */
   su2double GetWall_HeatFlux(string val_index) const;
+
+// >>> BLO
+  /*!
+   * \brief Get the wall heat flux on a constant heat flux boundary.
+   * \param[in] val_index - Index corresponding to the constant heat flux boundary.
+   * \return The heat flux.
+   */
+  su2double GetWall_Blowing(string val_index) const;
+// <<< BLO
+
 
   /*!
    * \brief Get the heat transfer coefficient on a heat transfer boundary.

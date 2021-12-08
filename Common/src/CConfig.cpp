@@ -476,6 +476,15 @@ void CConfig::addInletOption(const string name, unsigned short & nMarker_Inlet, 
   option_map.insert(pair<string, COptionBase *>(name, val));
 }
 
+
+void CConfig::addBlowingOption(const string name, unsigned short & nMarker_Blowing, string * & Marker_Blowing,
+                    su2double* & Blowing_Density, su2double* & Blowing_VelocityMag) {
+  assert(option_map.find(name) == option_map.end());
+  all_options.insert(pair<string, bool>(name, true));
+  COptionBase* val = new COptionBlowing(name, nMarker_Blowing, Marker_Blowing, Blowing_Density, Blowing_VelocityMag);
+  option_map.insert(pair<string, COptionBase *>(name, val));
+}
+
 template <class Tenum>
 void CConfig::addRiemannOption(const string name, unsigned short & nMarker_Riemann, string * & Marker_Riemann, unsigned short* & option_field, const map<string, Tenum> & enum_map,
                                su2double* & var1, su2double* & var2, su2double** & FlowDir) {
@@ -841,7 +850,8 @@ void CConfig::SetPointersNull(void) {
   Isothermal_Temperature = nullptr;    HeatTransfer_Coeff     = nullptr;    HeatTransfer_WallTemp  = nullptr;
   Heat_Flux              = nullptr;    Displ_Value            = nullptr;    Load_Value             = nullptr;
   FlowLoad_Value         = nullptr;    Damper_Constant        = nullptr;    Wall_Emissivity        = nullptr;
-  Roughness_Height       = nullptr;
+  Roughness_Height       = nullptr;    Blowing                = nullptr;    Blowing_Density        = nullptr;
+  Blowing_VelocityMag    = nullptr;   
 
   /*--- Inlet Outlet Boundary Condition settings ---*/
 
@@ -1448,7 +1458,7 @@ void CConfig::SetConfig_Options() {
    flow_direction_y, flow_direction_z, ... ) where flow_direction is
    a unit vector. \ingroup Config*/
   addInletOption("MARKER_INLET", nMarker_Inlet, Marker_Inlet, Inlet_Ttotal, Inlet_Ptotal, Inlet_FlowDir);
-
+  addBlowingOption("MARKER_BLOWING", nMarker_Blowing, Marker_Blowing, Blowing_Density, Blowing_VelocityMag);
   /*!\brief MARKER_RIEMANN \n DESCRIPTION: Riemann boundary marker(s) with the following formats, a unit vector.
    * \n OPTIONS: See \link Riemann_Map \endlink. The variables indicated by the option and the flow direction unit vector must be specified. \ingroup Config*/
   addRiemannOption("MARKER_RIEMANN", nMarker_Riemann, Marker_Riemann, Kind_Data_Riemann, Riemann_Map, Riemann_Var1, Riemann_Var2, Riemann_FlowDir);
@@ -1522,6 +1532,9 @@ void CConfig::SetConfig_Options() {
   /*!\brief MARKER_HEATFLUX  \n DESCRIPTION: Specified heat flux wall boundary marker(s)
    Format: ( Heat flux marker, wall heat flux (static), ... ) \ingroup Config*/
   addStringDoubleListOption("MARKER_HEATFLUX", nMarker_HeatFlux, Marker_HeatFlux, Heat_Flux);
+  // >>> BLO
+  //addStringDoubleListOption("MARKER_BLOWING", nMarker_Blowing, Marker_Blowing, Blowing_Density, Blowing_VelocityMag);
+  // <<< BLO
   /*!\brief MARKER_HEATTRANSFER DESCRIPTION: Heat flux with specified heat transfer coefficient boundary marker(s)\n
    * Format: ( Heat transfer marker, heat transfer coefficient, wall temperature (static), ... ) \ingroup Config  */
   addExhaustOption("MARKER_HEATTRANSFER", nMarker_HeatTransfer, Marker_HeatTransfer, HeatTransfer_Coeff, HeatTransfer_WallTemp);
@@ -4722,10 +4735,10 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
   }
 
   /*--- Check that if the wall roughness array are compatible and set deafult values if needed. ---*/
-   if ((nMarker_HeatFlux > 0) || (nMarker_Isothermal > 0) || (nMarker_HeatTransfer) || (nMarker_CHTInterface > 0)) {
+   if ((nMarker_Blowing > 0) || (nMarker_HeatFlux > 0) || (nMarker_Isothermal > 0) || (nMarker_HeatTransfer) || (nMarker_CHTInterface > 0)) {
 
      /*--- The total number of wall markers. ---*/
-     unsigned short nWall = nMarker_HeatFlux + nMarker_Isothermal + nMarker_HeatTransfer + nMarker_CHTInterface;
+     unsigned short nWall = nMarker_Blowing + nMarker_HeatFlux + nMarker_Isothermal + nMarker_HeatTransfer + nMarker_CHTInterface;
 
      /*--- If no roughness is specified all walls are assumed to be smooth. ---*/
      if (nRough_Wall == 0) {
@@ -4748,6 +4761,10 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
        for (iMarker = 0; iMarker < nMarker_CHTInterface; iMarker++) {
          Roughness_Height[nMarker_HeatFlux + nMarker_Isothermal + nMarker_HeatTransfer + iMarker] = 0.0;
          Kind_Wall[nMarker_HeatFlux + nMarker_Isothermal + nMarker_HeatTransfer + iMarker] = WALL_TYPE::SMOOTH;
+       }
+       for (iMarker = 0; iMarker < nMarker_Blowing; iMarker++) {
+         Roughness_Height[nMarker_HeatFlux + nMarker_Isothermal + nMarker_HeatTransfer + nMarker_CHTInterface + iMarker] = 0.0;
+         Kind_Wall[nMarker_HeatFlux + nMarker_Isothermal + nMarker_HeatTransfer + nMarker_CHTInterface + iMarker] = WALL_TYPE::SMOOTH;
        }
 
        /*--- Check for mismatch in number of rough walls and solid walls. ---*/
@@ -4796,6 +4813,12 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
          for (jMarker = 0; jMarker < nMarker_CHTInterface; jMarker++)
            if (Marker_CHTInterface[jMarker].compare(Marker_RoughWall[iMarker]) == 0) {
              Roughness_Height[nMarker_HeatFlux + nMarker_Isothermal + nMarker_HeatTransfer + jMarker] = temp_rough[iMarker];
+             chkRough++;
+           }
+
+         for (jMarker = 0; jMarker < nMarker_Blowing; jMarker++)
+           if (Marker_Blowing[jMarker].compare(Marker_RoughWall[iMarker]) == 0) {
+             Roughness_Height[nMarker_HeatFlux + nMarker_Isothermal + nMarker_HeatTransfer + nMarker_CHTInterface + jMarker] = temp_rough[iMarker];
              chkRough++;
            }
        }
@@ -5089,7 +5112,7 @@ void CConfig::SetMarkers(SU2_COMPONENT val_software) {
   iMarker_NearFieldBound, iMarker_Fluid_InterfaceBound,
   iMarker_Inlet, iMarker_Riemann, iMarker_Giles, iMarker_Outlet,
   iMarker_Smoluchowski_Maxwell,
-  iMarker_Isothermal,iMarker_HeatFlux,iMarker_HeatTansfer,
+  iMarker_Isothermal,iMarker_HeatFlux,iMarker_HeatTansfer,iMarker_Blowing,
   iMarker_EngineInflow, iMarker_EngineExhaust, iMarker_Damper,
   iMarker_Displacement, iMarker_Load, iMarker_FlowLoad, iMarker_Internal,
   iMarker_Monitoring, iMarker_Designing, iMarker_GeoEval, iMarker_Plotting, iMarker_Analyze,
@@ -5107,7 +5130,7 @@ void CConfig::SetMarkers(SU2_COMPONENT val_software) {
   nMarker_PerBound + nMarker_NearFieldBound + nMarker_Fluid_InterfaceBound +
   nMarker_CHTInterface + nMarker_Inlet + nMarker_Riemann + nMarker_Smoluchowski_Maxwell +
   nMarker_Giles + nMarker_Outlet + nMarker_Isothermal +
-  nMarker_HeatFlux + nMarker_HeatTransfer +
+  nMarker_HeatFlux + nMarker_HeatTransfer + nMarker_Blowing +
   nMarker_EngineInflow + nMarker_EngineExhaust + nMarker_Internal +
   nMarker_Supersonic_Inlet + nMarker_Supersonic_Outlet + nMarker_Displacement + nMarker_Load +
   nMarker_FlowLoad + nMarker_Custom + nMarker_Damper + nMarker_Fluid_Load +
@@ -5396,6 +5419,14 @@ void CConfig::SetMarkers(SU2_COMPONENT val_software) {
     iMarker_CfgFile++;
   }
 
+// >>> BLO
+  for (iMarker_Blowing = 0; iMarker_Blowing < nMarker_Blowing; iMarker_Blowing++) {
+    Marker_CfgFile_TagBound[iMarker_CfgFile] = Marker_Blowing[iMarker_Blowing];
+    Marker_CfgFile_KindBC[iMarker_CfgFile] = BLOWING;
+    iMarker_CfgFile++;
+  }
+// <<< BLO
+
   for (iMarker_HeatTansfer = 0; iMarker_HeatTansfer < nMarker_HeatTransfer; iMarker_HeatTansfer++) {
     Marker_CfgFile_TagBound[iMarker_CfgFile] = Marker_HeatTransfer[iMarker_HeatTansfer];
     Marker_CfgFile_KindBC[iMarker_CfgFile] = HEAT_TRANSFER;
@@ -5597,7 +5628,7 @@ void CConfig::SetOutput(SU2_COMPONENT val_software, unsigned short val_izone) {
   iMarker_Fluid_InterfaceBound, iMarker_Inlet, iMarker_Riemann,
   iMarker_Deform_Mesh, iMarker_Deform_Mesh_Sym_Plane, iMarker_Fluid_Load,
   iMarker_Smoluchowski_Maxwell, iWall_Catalytic,
-  iMarker_Giles, iMarker_Outlet, iMarker_Isothermal, iMarker_HeatFlux, iMarker_HeatTransfer,
+  iMarker_Giles, iMarker_Outlet, iMarker_Isothermal, iMarker_HeatFlux, iMarker_HeatTransfer, iMarker_Blowing, 
   iMarker_EngineInflow, iMarker_EngineExhaust, iMarker_Displacement, iMarker_Damper,
   iMarker_Load, iMarker_FlowLoad, iMarker_Internal, iMarker_Monitoring,
   iMarker_Designing, iMarker_GeoEval, iMarker_Plotting, iMarker_Analyze, iMarker_DV, iDV_Value,
@@ -6983,6 +7014,17 @@ void CConfig::SetOutput(SU2_COMPONENT val_software, unsigned short val_izone) {
     BoundaryTable.PrintFooter();
   }
 
+// >>> BLO
+  if (nMarker_Blowing != 0) {
+    BoundaryTable << "Blowing wall";
+    for (iMarker_Blowing = 0; iMarker_Blowing < nMarker_Blowing; iMarker_Blowing++) {
+      BoundaryTable << Marker_Blowing[iMarker_Blowing];
+      if (iMarker_Blowing < nMarker_Blowing-1)  BoundaryTable << " ";
+    }
+    BoundaryTable.PrintFooter();
+  }
+// <<< BLO
+
   if (nMarker_HeatTransfer != 0) {
     BoundaryTable << "Heat transfer wall";
     for (iMarker_HeatTransfer = 0; iMarker_HeatTransfer < nMarker_HeatTransfer; iMarker_HeatTransfer++) {
@@ -7407,6 +7449,7 @@ unsigned short CConfig::GetMarker_ZoneInterface(string val_marker) const {
 bool CConfig::GetViscous_Wall(unsigned short iMarker) const {
 
   return (Marker_All_KindBC[iMarker] == HEAT_FLUX  ||
+          Marker_All_KindBC[iMarker] == BLOWING  ||
           Marker_All_KindBC[iMarker] == ISOTHERMAL ||
           Marker_All_KindBC[iMarker] == HEAT_TRANSFER ||
           Marker_All_KindBC[iMarker] == SMOLUCHOWSKI_MAXWELL ||
@@ -8615,6 +8658,20 @@ su2double CConfig::GetInlet_Pressure(string val_marker) const {
   return Inlet_Pressure[iMarker_Supersonic_Inlet];
 }
 
+su2double CConfig::GetBlowing_Density(string val_marker) const {
+  unsigned short iMarker_Blowing;
+  for (iMarker_Blowing = 0; iMarker_Blowing < nMarker_Blowing; iMarker_Blowing++)
+    if (Marker_Blowing[iMarker_Blowing] == val_marker) break;
+  return Blowing_Density[iMarker_Blowing];
+}
+
+su2double CConfig::GetBlowing_VelocityMag(string val_marker) const {
+  unsigned short iMarker_Blowing;
+  for (iMarker_Blowing = 0; iMarker_Blowing < nMarker_Blowing; iMarker_Blowing++)
+    if (Marker_Blowing[iMarker_Blowing] == val_marker) break;
+  return Blowing_VelocityMag[iMarker_Blowing];
+}
+
 const su2double* CConfig::GetInlet_Velocity(string val_marker) const {
   unsigned short iMarker_Supersonic_Inlet;
   for (iMarker_Supersonic_Inlet = 0; iMarker_Supersonic_Inlet < nMarker_Supersonic_Inlet; iMarker_Supersonic_Inlet++)
@@ -8908,6 +8965,18 @@ su2double CConfig::GetWall_HeatFlux(string val_marker) const {
   return Heat_Flux[0];
 }
 
+// >>> BLO
+su2double CConfig::GetWall_Blowing(string val_marker) const {
+
+  for (unsigned short iMarker_Blowing = 0; iMarker_Blowing < nMarker_Blowing; iMarker_Blowing++)
+    if (Marker_Blowing[iMarker_Blowing] == val_marker)
+      return Blowing[iMarker_Blowing];
+
+  return Blowing[0];
+}
+// <<< BLO
+
+
 su2double CConfig::GetWall_HeatTransfer_Coefficient(string val_marker) const {
 
   for (unsigned short iMarker_HeatTransfer = 0; iMarker_HeatTransfer < nMarker_HeatTransfer; iMarker_HeatTransfer++)
@@ -8956,6 +9025,14 @@ pair<WALL_TYPE, su2double> CConfig::GetWallRoughnessProperties(string val_marker
         WallProp = make_pair(Kind_Wall[flag], Roughness_Height[flag]);
         return WallProp;
       }
+      // >>> BLO
+    for (iMarker = 0; iMarker < nMarker_Blowing; iMarker++)
+      if (Marker_Blowing[iMarker] == val_marker) {
+        flag = nMarker_HeatFlux + nMarker_Isothermal + nMarker_HeatTransfer + nMarker_CHTInterface + iMarker;
+        WallProp = make_pair(Kind_Wall[flag], Roughness_Height[flag]);
+        return WallProp;
+      }
+      // <<< BLO
   }
 
   WallProp = make_pair(WALL_TYPE::SMOOTH, 0.0);

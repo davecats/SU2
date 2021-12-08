@@ -1101,6 +1101,71 @@ public:
   }
 };
 
+
+class COptionBlowing : public COptionBase {
+  string name; // identifier for the option
+  unsigned short & size;
+  string * & marker;
+  su2double * & density;
+  su2double * & velmag;
+
+public:
+  COptionBlowing(string option_field_name, unsigned short & nMarker_Blowing, string* & Marker_Blowing, su2double* & Blowing_Density, su2double* & Blowing_VelocityMag) : size(nMarker_Blowing), marker(Marker_Blowing), density(Blowing_Density), velmag(Blowing_VelocityMag) {
+    this->name = option_field_name;
+  }
+
+  ~COptionBlowing() override {};
+  string SetValue(vector<string> option_value) override {
+    COptionBase::SetValue(option_value);
+    unsigned short totalVals = option_value.size();
+    if ((totalVals == 1) && (option_value[0].compare("NONE") == 0)) {
+      this->size = 0;
+      this->marker = nullptr;
+      this->density = nullptr;
+      this->velmag = nullptr;
+      return "";
+    }
+
+    if (totalVals % 3 != 0) {
+      string newstring;
+      newstring.append(this->name);
+      newstring.append(": must have a number of entries divisible by 3");
+      this->size = 0;
+      this->marker = nullptr;
+      this->density = nullptr;
+      this->velmag = nullptr;
+      return newstring;
+    }
+
+    unsigned short nVals = totalVals / 3;
+    this->size = nVals;
+    this->marker = new string[nVals];
+    this->density = new su2double[nVals];
+    this->velmag = new su2double[nVals];
+
+    for (unsigned long i = 0; i < nVals; i++) {
+      this->marker[i].assign(option_value[3*i]);
+      istringstream ss_1st(option_value[3*i + 1]);
+      if (!(ss_1st >> this->density[i])) {
+        return badValue(option_value, "blowing", this->name);
+      }
+      istringstream ss_2nd(option_value[3*i + 2]);
+      if (!(ss_2nd >> this->velmag[i])) {
+        return badValue(option_value, "blowing", this->name);
+      }
+    }
+
+    return "";
+  }
+
+  void SetDefault() override {
+    this->marker = nullptr;
+    this->density = nullptr;
+    this->velmag = nullptr;
+    this->size = 0; // There is no default value for list
+  }
+};
+
 template <class Tenum>
 class COptionRiemann : public COptionBase {
 
