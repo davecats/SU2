@@ -156,6 +156,7 @@ void CIntegration::Space_Integration(CGeometry *geometry,
         break;
       case BLOWING:
 	solver_container[MainSolver]->BC_Isothermal_Wall_Blowing(geometry, solver_container, conv_bound_numerics, visc_bound_numerics, config, iMarker);
+	break;
       case HEAT_FLUX:
         solver_container[MainSolver]->BC_HeatFlux_Wall(geometry, solver_container, conv_bound_numerics, visc_bound_numerics, config, iMarker);
         break;
