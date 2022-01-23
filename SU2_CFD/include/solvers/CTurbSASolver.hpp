@@ -193,6 +193,14 @@ public:
                           CConfig *config,
                           unsigned short val_marker) override;
 
+
+  void BC_Isothermal_Wall_Blowing(CGeometry *geometry,
+                          CSolver **solver_container,
+                          CNumerics *conv_numerics,
+                          CNumerics *visc_numerics,
+                          CConfig *config,
+                          unsigned short val_marker) override;
+
   /*!
    * \brief Impose the Far Field boundary condition.
    * \param[in] geometry - Geometrical definition of the problem.

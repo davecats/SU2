@@ -30,6 +30,7 @@
 #include "../../../Common/include/toolboxes/printing_toolbox.hpp"
 #include "../../../Common/include/toolboxes/geometry_toolbox.hpp"
 #include "../../include/solvers/CFVMFlowSolverBase.inl"
+#include "../../include/fluid/CIdealGas.hpp"
 
 /*--- Explicit instantiation of the parent class of CEulerSolver,
  *    to spread the compilation over two cpp files. ---*/
@@ -441,10 +442,9 @@ void CNSSolver::BC_HeatFlux_Wall_Generic_Blowing(const CGeometry *geometry, cons
   /*--- Get the specified wall heat flux, temperature or heat transfer coefficient from config ---*/
 
   su2double Wall_HeatFlux = 0.0, Tinfinity = 0.0, Transfer_Coefficient = 0.0;
-
   if (kind_boundary == BLOWING) {
-    Wall_HeatFlux = config->GetWall_HeatFlux(Marker_Tag)/config->GetHeat_Flux_Ref();
-  }
+    Wall_HeatFlux = config->GetWall_HeatFlux(Marker_Tag)/config->GetHeat_Flux_Ref();  
+    }
   else if (kind_boundary == HEAT_TRANSFER) {
     /*--- The required heatflux will be computed for each iPoint individually based on local Temperature. ---*/
     cout << " Not checked yet ";
@@ -610,7 +610,6 @@ void CNSSolver::BC_HeatFlux_Wall_Generic(const CGeometry *geometry, const CConfi
 
   const bool implicit = (config->GetKind_TimeIntScheme() == EULER_IMPLICIT);
   const auto Marker_Tag = config->GetMarker_All_TagBound(val_marker);
-
   /*--- Get the specified wall heat flux, temperature or heat transfer coefficient from config ---*/
 
   su2double Wall_HeatFlux = 0.0, Tinfinity = 0.0, Transfer_Coefficient = 0.0;
@@ -811,6 +810,8 @@ void CNSSolver::BC_Isothermal_Wall_Generic_Blowing(CGeometry *geometry, CSolver 
   bool tkeNeeded = (config->GetKind_Turb_Model() == TURB_MODEL::SST) || (config->GetKind_Turb_Model() == TURB_MODEL::SST_SUST);
   su2double *Normal = new su2double[nDim];
 
+  su2double VelMagnitude2_i, *turb_ke, StaticEnergy, Kappa, Chi, Enthalpy;
+  
   /*--- Loop over all the vertices on this boundary marker ---*/
 
   SU2_OMP_FOR_DYN(OMP_MIN_SIZE)
@@ -901,6 +902,31 @@ void CNSSolver::BC_Isothermal_Wall_Generic_Blowing(CGeometry *geometry, CSolver 
           Energy = Pressure/(Density*Gamma_Minus_One) + 0.5*Vel_Mag*Vel_Mag;
           if (tkeNeeded) Energy += GetTke_Inf();
 
+          // >>>
+          Energy = nodes->GetEnergy(iPoint);
+
+          VelMagnitude2_i = 0.0;
+          for (iDim = 0; iDim < nDim; iDim++) {
+            //Velocity_i[iDim] = node[iPoint]->GetVelocity(iDim);
+            //ProjVelocity_i += Velocity_i[iDim]*UnitNormal[iDim];
+            VelMagnitude2_i += Velocity[iDim]*Velocity[iDim];
+          }
+
+         /*   
+          if (tkeNeeded) turb_ke = solver_container[TURB_SOL]->GetNodes()->GetSolution(iPoint);
+          StaticEnergy = Energy - 0.5 * VelMagnitude2_i  - turb_ke[0];
+          Energy = StaticEnergy + 0.5 * Vel_Mag * Vel_Mag + GetTke_Inf();
+
+          CFluidModel* auxFluidModel = nullptr; 
+          auxFluidModel = new CIdealGas(1.4, config->GetGas_Constant());
+
+          auxFluidModel->SetTDState_rhoe(Density, StaticEnergy);
+          Kappa = auxFluidModel->GetdPde_rho() / Density;
+          Chi = auxFluidModel->GetdPdrho_e() - Kappa * StaticEnergy;
+          Pressure = auxFluidModel->GetPressure();
+          Enthalpy = Energy + Pressure/Density;
+          // <<<
+          */
           /*--- Primitive variables, using the derived quantities ---*/
 
           V_inlet[0] = Pressure / ( Gas_Constant * Density);
@@ -909,10 +935,12 @@ void CNSSolver::BC_Isothermal_Wall_Generic_Blowing(CGeometry *geometry, CSolver 
           V_inlet[nDim+1] = Pressure;
           V_inlet[nDim+2] = Density;
           V_inlet[nDim+3] = Energy + Pressure/Density;
+          //cout << "V_inlet" << V_inlet[0] << "," << V_inlet[1] << "," << V_inlet[2] << "," << V_inlet[3] << "," << V_inlet[4] << "," << V_inlet[5] << "," << V_inlet[6] << endl;
 
       /*--- Set various quantities in the solver class ---*/
 
       conv_numerics->SetPrimitive(V_domain, V_inlet);
+      visc_numerics->SetPrimitive(V_domain, V_inlet);
 
       if (dynamic_grid)
         conv_numerics->SetGridVel(geometry->nodes->GetGridVel(iPoint), geometry->nodes->GetGridVel(iPoint));
@@ -920,32 +948,107 @@ void CNSSolver::BC_Isothermal_Wall_Generic_Blowing(CGeometry *geometry, CSolver 
       /*--- Compute the residual using an upwind scheme ---*/
 
       auto residual = conv_numerics->ComputeResidual(config);
+      auto v_residual = visc_numerics->ComputeResidual(config);
 
       /*--- Update residual value ---*/
 
       LinSysRes.AddBlock(iPoint, residual);
+      if (Density==-99){LinSysRes.AddBlock(iPoint, v_residual);}
 
       /*--- Jacobian contribution for implicit integration ---*/
 
-      if (implicit)
+      if (implicit){
         Jacobian.AddBlock2Diag(iPoint, residual.jacobian_i);
+        if (Density==-99){Jacobian.AddBlock2Diag(iPoint, v_residual.jacobian_i);}
+      }
 
-      /*--- Remove Jacobian contributions for strong imposition of density and momentum ---*/
+      
       su2double Solution[MAXNVAR] = {0.0};
       Solution[0] = Density;
-       for (auto iDim = 0u; iDim < nDim; iDim++)
+      for (auto iDim = 0; iDim < nDim; iDim++)
           Solution[iDim+1] = V_inlet[iDim+1]*Density;
       Solution[nDim+1] = Energy*Density;
 
       for (auto iDim = 0u; iDim < nVar-1; iDim++){
           nodes->SetSolution_Old(iPoint,iDim,Solution[iDim]);
           LinSysRes(iPoint, iDim) = 0.0; // blowingVelocity[iDim];
+          //LinSysRes(iPoint, 1) = V_inlet[1];
+          //LinSysRes(iPoint, 2) = V_inlet[2];
           nodes->SetVal_ResTruncError_Zero(iPoint,iDim);
       }
+   
       for (auto iVar = 0u; iVar <= nDim; iVar++) {
           auto total_index = iPoint*nVar+iVar;
           Jacobian.DeleteValsRowi(total_index);
       }
+            
+      // su2double Solution[MAXNVAR] = {0.0};
+      // Solution[0] = Density;
+      // for (auto iDim = 0; iDim < nDim; iDim++)
+      //     Solution[iDim+1] = V_inlet[iDim+1]*Density;
+      // Solution[nDim+1] = Energy*Density;
+
+      // su2double V_blowing[nDim];
+      // for (iDim = 0; iDim < nDim; iDim++)
+      //       V_blowing[iDim] = Vel_Mag*Flow_Dir[iDim];
+
+      // nodes->SetVelocity_Old(iPoint,V_blowing);
+      // for (auto iDim = 0u; iDim < nDim; iDim++){
+      //     LinSysRes(iPoint, iDim+1) = 0.0; // blowingVelocity[iDim]
+      // }
+      // nodes->SetVel_ResTruncError_Zero(iPoint);
+
+      // for (auto iVar = 1u; iVar <= nDim; iVar++) {
+      //     auto total_index = iPoint*nVar+iVar;
+      //     Jacobian.DeleteValsRowi(total_index);
+      // }
+
+
+    // // >>> start test section 
+    // /*--- Apply a weak boundary condition for the energy equation.
+    //  Compute the residual due to the prescribed heat flux.
+    //  The convective part will be zero if the grid is not moving. ---*/
+    // su2double Wall_HeatFlux = 0.0;
+    // su2double Res_Conv = 0.0;
+    // su2double Res_Visc = Wall_HeatFlux * Area;
+
+    // /*--- Impose the value of the velocity as a strong boundary
+    //  condition (Dirichlet). Fix the velocity and remove any
+    //  contribution to the residual at this node. ---*/
+
+    // nodes->SetVelocity_Old(iPoint, geometry->nodes->GetGridVel(iPoint));
+  
+    // for (auto iDim = 0u; iDim < nDim; iDim++)
+    //   LinSysRes(iPoint, iDim+1) = 0.0;
+    // nodes->SetVel_ResTruncError_Zero(iPoint);
+
+    // /*--- If the wall is moving, there are additional residual contributions
+    //  due to pressure (p v_wall.n) and shear stress (tau.v_wall.n). ---*/
+
+    //   if (implicit) {
+    //     for (auto iVar = 0u; iVar < nVar; ++iVar)
+    //       Jacobian_i[nDim+1][iVar] = 0.0;
+    //   }
+
+    //   const auto Point_Normal = geometry->vertex[val_marker][iVertex]->GetNormal_Neighbor();
+
+    //   AddDynamicGridResidualContribution(iPoint, Point_Normal, geometry, UnitNormal,
+    //                                      Area, geometry->nodes->GetGridVel(iPoint),
+    //                                      Jacobian_i, Res_Conv, Res_Visc);
+    
+
+    // /*--- Convective and viscous contributions to the residual at the wall ---*/
+
+    // LinSysRes(iPoint, nDim+1) += Res_Conv - Res_Visc;
+
+
+    //   for (auto iVar = 1u; iVar <= nDim; iVar++) {
+    //     auto total_index = iPoint*nVar+iVar;
+    //     Jacobian.DeleteValsRowi(total_index);
+    //   }
+    
+
+    // // <<< end test section  
 
     }
   }
