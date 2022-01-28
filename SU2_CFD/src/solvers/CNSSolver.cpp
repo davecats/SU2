@@ -903,7 +903,7 @@ void CNSSolver::BC_Isothermal_Wall_Generic_Blowing(CGeometry *geometry, CSolver 
           if (tkeNeeded) Energy += GetTke_Inf();
 
           // >>>
-          Energy = nodes->GetEnergy(iPoint);
+          //Energy = nodes->GetEnergy(iPoint);
 
           VelMagnitude2_i = 0.0;
           for (iDim = 0; iDim < nDim; iDim++) {
