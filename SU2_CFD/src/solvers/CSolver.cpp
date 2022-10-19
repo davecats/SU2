@@ -3525,6 +3525,9 @@ void CSolver::LoadInletProfile(CGeometry **geometry,
   const auto nZone = config->GetnZone();
 
   auto profile_filename = config->GetInlet_FileName();
+  if (val_kind_marker == BLOWING) {
+    profile_filename.append(".blo");
+  }
 
   unsigned short nVar_Turb = 0;
   if (config->GetKind_Turb_Model() != TURB_MODEL::NONE) nVar_Turb = solver[MESH_0][TURB_SOL]->GetnVar();
@@ -3563,11 +3566,12 @@ void CSolver::LoadInletProfile(CGeometry **geometry,
   for (unsigned short iMarker = 0; iMarker < config->GetnMarker_All(); iMarker++) {
 
     /*--- Skip if this is the wrong type of marker. ---*/
-    if (config->GetMarker_All_KindBC(iMarker) != KIND_MARKER) continue;
+    //if (config->GetMarker_All_KindBC(iMarker) == (KIND_MARKER || 56) )  continue;
+    if (config->GetMarker_All_KindBC(iMarker) != INLET_FLOW)  continue;
 
     string Marker_Tag = config->GetMarker_All_TagBound(iMarker);
-    su2double p_total   = config->GetInlet_Ptotal(Marker_Tag);
-    su2double t_total   = config->GetInlet_Ttotal(Marker_Tag);
+    su2double p_total = config->GetInlet_Ptotal(Marker_Tag);
+    su2double t_total = config->GetInlet_Ttotal(Marker_Tag);
     auto flow_dir = config->GetInlet_FlowDir(Marker_Tag);
     std::stringstream columnName,columnValue;
 
@@ -3632,6 +3636,98 @@ void CSolver::LoadInletProfile(CGeometry **geometry,
   }
 
 
+  // >>> Blowing Specified Inlet
+  // create vector of column names
+  for (unsigned short iMarker = 0; iMarker < config->GetnMarker_All(); iMarker++) {
+
+    /*--- Skip if this is the wrong type of marker. ---*/
+    //if (config->GetMarker_All_KindBC(iMarker) == (KIND_MARKER || 56) )  continue;
+    if (config->GetMarker_All_KindBC(iMarker) != BLOWING)  continue;
+
+    string Marker_Tag = config->GetMarker_All_TagBound(iMarker);
+    su2double p_total = config->GetBlowing_VelocityMag(Marker_Tag);
+    su2double t_total = config->GetBlowing_Density(Marker_Tag);;
+    su2double flow_dir_1 = 1;
+    su2double flow_dir_0 = 0;
+
+    std::stringstream columnName,columnValue;
+
+    columnValue << setprecision(15);
+    columnValue << std::scientific;
+
+    columnValue << t_total << "\t" << p_total <<"\t";
+    for (unsigned short iDim = 0; iDim < nDim; iDim++) {
+      if (iDim == 1) {
+        columnValue << flow_dir_1 << "\t";
+      }
+      else {
+        columnValue << flow_dir_0 << "\t";
+      }
+    }
+
+    columnName << "# COORD-X  " << setw(24) << "COORD-Y    " << setw(24);
+    if(nDim==3) columnName << "COORD-Z    " << setw(24);
+
+    if (config->GetKind_Regime()==ENUM_REGIME::COMPRESSIBLE){
+      switch (config->GetKind_Inlet()) {
+        /*--- compressible conditions ---*/
+        case INLET_TYPE::TOTAL_CONDITIONS:
+          columnName << "TEMPERATURE" << setw(24) << "PRESSURE   " << setw(24);
+          break;
+        case INLET_TYPE::MASS_FLOW:
+          columnName << "DENSITY    " << setw(24) << "VELOCITY   " << setw(24);
+          break;
+        case INLET_TYPE::MASS_FLOW_BLOW:
+          columnName << "DENSITY    " << setw(24) << "MASS_FLOW   " << setw(24);
+          break;
+        case INLET_TYPE::VELOCITY_BLOW:
+          columnName << "DENSITY    " << setw(24) << "VELOCITY   " << setw(24);
+          break;  
+        default:
+          SU2_MPI::Error("Unsupported INLET_TYPE.", CURRENT_FUNCTION);
+          break;        }
+    } else {
+      switch (config->GetKind_Inc_Inlet(Marker_Tag)) {
+        /*--- incompressible conditions ---*/
+        case INLET_TYPE::VELOCITY_INLET:
+          columnName << "TEMPERATURE" << setw(24) << "VELOCITY   " << setw(24);
+          break;
+        case INLET_TYPE::PRESSURE_INLET:
+          columnName << "TEMPERATURE" << setw(24) << "PRESSURE   " << setw(24);
+          break;
+        default:
+          SU2_MPI::Error("Unsupported INC_INLET_TYPE.", CURRENT_FUNCTION);
+          break;
+      }
+    }
+
+    columnName << "NORMAL-X   " << setw(24) << "NORMAL-Y   " << setw(24);
+    if(nDim==3)  columnName << "NORMAL-Z   " << setw(24);
+
+    switch (config->GetKind_Turb_Model()) {
+      case TURB_MODEL::NONE: break;
+      case TURB_MODEL::SA: case TURB_MODEL::SA_NEG: case TURB_MODEL::SA_E: case TURB_MODEL::SA_COMP: case TURB_MODEL::SA_E_COMP:
+        /*--- 1-equation turbulence model: SA ---*/
+        columnName << "NU_TILDE   " << setw(24);
+        columnValue << config->GetNuFactor_FreeStream()*config->GetViscosity_FreeStreamND()/config->GetDensity_FreeStreamND() <<"\t";
+        break;
+      case TURB_MODEL::SST: case TURB_MODEL::SST_SUST:
+        /*--- 2-equation turbulence model (SST) ---*/
+        columnName << "TKE        " << setw(24) << "DISSIPATION";
+        //columnValue << config->GetTke_FreeStream() << "\t" << config->GetOmega_FreeStream() <<"\t";
+        su2double Tke   = 0;
+        su2double Omega = 0;
+        columnValue << Tke << "\t" << Omega << "\t";
+        break;
+    }
+
+    columnNames.push_back(columnName.str());
+    columnValues.push_back(columnValue.str());
+
+  }
+  // <<<
+
+
   /*--- Read the profile data from an ASCII file. ---*/
 
   CMarkerProfileReaderFVM profileReader(geometry[MESH_0], config, profile_filename, KIND_MARKER, nCol_InletFile, columnNames,columnValues);
@@ -3647,7 +3743,7 @@ void CSolver::LoadInletProfile(CGeometry **geometry,
 
     /*--- Skip if this is the wrong type of marker. ---*/
 
-    if (config->GetMarker_All_KindBC(iMarker) != KIND_MARKER) continue;
+    if (config->GetMarker_All_KindBC(iMarker) != INLET_FLOW) continue;
 
     /*--- Get tag in order to identify the correct inlet data. ---*/
 
@@ -3853,6 +3949,220 @@ void CSolver::LoadInletProfile(CGeometry **geometry,
     if (local_failure > 0) break;
 
   } // end iMarker loop
+
+  // >>> Specified Inlet Blowing  
+  for (auto iMarker = 0ul; iMarker < config->GetnMarker_All(); iMarker++) {
+
+    /*--- Skip if this is the wrong type of marker. ---*/
+
+    if (config->GetMarker_All_KindBC(iMarker) != BLOWING) continue;
+
+    /*--- Get tag in order to identify the correct inlet data. ---*/
+
+    const auto Marker_Tag = config->GetMarker_All_TagBound(iMarker);
+
+    for (auto jMarker = 0ul; jMarker < profileReader.GetNumberOfProfiles(); jMarker++) {
+
+      /*--- If we have not found the matching marker string, continue to next marker. ---*/
+
+      if (profileReader.GetTagForProfile(jMarker) != Marker_Tag) continue;
+
+      /*--- Increment our counter for marker matches. ---*/
+
+      Marker_Counter++;
+
+      /*--- Get data for this profile. ---*/
+
+      const vector<passivedouble>& Inlet_Data = profileReader.GetDataForProfile(jMarker);
+      const auto nColumns = profileReader.GetNumberOfColumnsInProfile(jMarker);
+      vector<su2double> Inlet_Data_Interpolated ((nCol_InletFile+nDim)*geometry[MESH_0]->nVertex[iMarker]);
+
+      /*--- Define Inlet Values vectors before and after interpolation (if needed) ---*/
+      vector<su2double> Inlet_Values(nCol_InletFile+nDim);
+      vector<su2double> Inlet_Interpolated(nColumns);
+
+      const auto nRows = profileReader.GetNumberOfRowsInProfile(jMarker);
+
+      /*--- Pointer to call Set and Evaluate functions. ---*/
+      vector<C1DInterpolation*> interpolator(nColumns,nullptr);
+      string interpolation_function, interpolation_type;
+
+      /*--- Define the reference for interpolation. ---*/
+      unsigned short radius_index=0;
+      vector<su2double> InletRadii = profileReader.GetColumnForProfile(jMarker, radius_index);
+      vector<su2double> Interpolation_Column (nRows);
+
+      bool Interpolate = true;
+
+      switch(config->GetKindInletInterpolationFunction()){
+
+        case (INLET_SPANWISE_INTERP::NONE):
+          Interpolate = false;
+          break;
+
+        case (INLET_SPANWISE_INTERP::AKIMA_1D):
+          for (auto iCol=0ul; iCol < nColumns; iCol++){
+            Interpolation_Column = profileReader.GetColumnForProfile(jMarker, iCol);
+            interpolator[iCol] = new CAkimaInterpolation(InletRadii,Interpolation_Column);
+          }
+          interpolation_function = "AKIMA";
+          break;
+
+        case (INLET_SPANWISE_INTERP::LINEAR_1D):
+          for (auto iCol=0ul; iCol < nColumns; iCol++){
+            Interpolation_Column = profileReader.GetColumnForProfile(jMarker, iCol);
+            interpolator[iCol] = new CLinearInterpolation(InletRadii,Interpolation_Column);
+          }
+          interpolation_function = "LINEAR";
+          break;
+
+        case (INLET_SPANWISE_INTERP::CUBIC_1D):
+          for (auto iCol=0ul; iCol < nColumns; iCol++){
+            Interpolation_Column = profileReader.GetColumnForProfile(jMarker, iCol);
+            interpolator[iCol] = new CCubicSpline(InletRadii,Interpolation_Column);
+          }
+          interpolation_function = "CUBIC";
+          break;
+
+        default:
+          SU2_MPI::Error("Unknown type of interpolation function for inlets.\n",CURRENT_FUNCTION);
+          break;
+      }
+
+      if (Interpolate){
+        switch(config->GetKindInletInterpolationType()){
+          case(INLET_INTERP_TYPE::VR_VTHETA):
+            interpolation_type="VR_VTHETA";
+            break;
+          case(INLET_INTERP_TYPE::ALPHA_PHI):
+            interpolation_type="ALPHA_PHI";
+            break;
+        }
+        cout<<"Inlet Interpolation being done using "<<interpolation_function
+            <<" function and type "<<interpolation_type<<" for "<< Marker_Tag<<endl;
+        if(nDim == 3)
+          cout<<"Ensure the flow direction is in z direction"<<endl;
+        else if (nDim == 2)
+          cout<<"Ensure the flow direction is in x direction"<<endl;
+      }
+      else {
+        cout<<"No Inlet Interpolation being used"<<endl;
+      }
+
+      /*--- Loop through the nodes on this marker. ---*/
+
+      for (auto iVertex = 0ul; iVertex < geometry[MESH_0]->nVertex[iMarker]; iVertex++) {
+
+        const auto iPoint = geometry[MESH_0]->vertex[iMarker][iVertex]->GetNode();
+        const auto Coord = geometry[MESH_0]->nodes->GetCoord(iPoint);
+
+        if (!Interpolate) {
+
+          su2double min_dist = 1e16;
+
+          /*--- Find the distance to the closest point in our inlet profile data. ---*/
+
+          for (auto iRow = 0ul; iRow < nRows; iRow++) {
+
+            /*--- Get the coords for this data point. ---*/
+
+            const auto index = iRow*nColumns;
+
+            const auto dist = GeometryToolbox::Distance(nDim, Coord, &Inlet_Data[index]);
+
+            /*--- Check is this is the closest point and store data if so. ---*/
+
+            if (dist < min_dist) {
+              min_dist = dist;
+              for (auto iVar = 0ul; iVar < nColumns; iVar++)
+                Inlet_Values[iVar] = Inlet_Data[index+iVar];
+            }
+
+          }
+
+          /*--- If the diff is less than the tolerance, match the two.
+          We could modify this to simply use the nearest neighbor, or
+          eventually add something more elaborate here for interpolation. ---*/
+
+          if (min_dist < tolerance) {
+
+            solver[MESH_0][KIND_SOLVER]->SetInletAtVertex(Inlet_Values.data(), iMarker, iVertex);
+
+          } else {
+
+            unsigned long GlobalIndex = geometry[MESH_0]->nodes->GetGlobalIndex(iPoint);
+            cout << "WARNING: Did not find a match between the points in the inlet file\n";
+            cout << "and point " << GlobalIndex;
+            cout << std::scientific;
+            cout << " at location: [" << Coord[0] << ", " << Coord[1];
+            if (nDim==3) cout << ", " << Coord[2];
+            cout << "]\n";
+            cout << "Distance to closest point: " << min_dist << "\n";
+            cout << "Current tolerance:         " << tolerance << "\n\n";
+            cout << "You can increase the tolerance for point matching by changing the value\n";
+            cout << "of the option INLET_MATCHING_TOLERANCE in your *.cfg file." << endl;
+            local_failure++;
+            break;
+          }
+
+        }
+        else { // Interpolate
+
+          /* --- Calculating the radius and angle of the vertex ---*/
+          /* --- Flow should be in z direction for 3D cases ---*/
+          /* --- Or in x direction for 2D cases ---*/
+          const su2double Interp_Radius = sqrt(pow(Coord[0],2)+ pow(Coord[1],2));
+          const su2double Theta = atan2(Coord[1],Coord[0]);
+
+          /* --- Evaluating and saving the final spline data ---*/
+          for (auto iVar=0ul; iVar < nColumns; iVar++){
+
+            /*---Evaluate spline will get the respective value of the Data set (column) specified
+            for that interpolator[iVar], cycling through all columns to get all the
+            data for that vertex ---*/
+            Inlet_Interpolated[iVar]=interpolator[iVar]->EvaluateSpline(Interp_Radius);
+            if (Interp_Radius < InletRadii.front() || Interp_Radius > InletRadii.back()) {
+              cout << "WARNING: Did not find a match between the radius in the inlet file " ;
+              cout << std::scientific;
+              cout << "at location: [" << Coord[0] << ", " << Coord[1];
+              if (nDim == 3) {cout << ", " << Coord[2];}
+              cout << "]";
+              cout << " with Radius: "<< Interp_Radius << endl;
+              cout << "You can add a row for Radius: " << Interp_Radius <<" in the inlet file ";
+              cout << "to eliminate this issue or give proper data" << endl;
+              local_failure++;
+              break;
+            }
+          }
+
+          /*--- Correcting for Interpolation Type ---*/
+
+          Inlet_Values = CorrectedInletValues(Inlet_Interpolated, Theta, nDim, Coord,
+                                              nVar_Turb, config->GetKindInletInterpolationType());
+
+          solver[MESH_0][KIND_SOLVER]->SetInletAtVertex(Inlet_Values.data(), iMarker, iVertex);
+
+          for (unsigned short iVar=0; iVar < (nCol_InletFile+nDim); iVar++)
+            Inlet_Data_Interpolated[iVertex*(nCol_InletFile+nDim)+iVar] = Inlet_Values[iVar];
+
+        }
+
+      } // end iVertex loop
+
+      if (config->GetPrintInlet_InterpolatedData()) {
+        PrintInletInterpolatedData(Inlet_Data_Interpolated, profileReader.GetTagForProfile(jMarker),
+                                   geometry[MESH_0]->nVertex[iMarker], nDim, nCol_InletFile+nDim);
+      }
+
+      for (auto& interp : interpolator) delete interp;
+
+    } // end jMarker loop
+
+    if (local_failure > 0) break;
+
+  } // end iMarker loop
+  // <<< Specified Inlet Blowing  
+
 
   unsigned short global_failure;
   SU2_MPI::Allreduce(&local_failure, &global_failure, 1, MPI_UNSIGNED_SHORT, MPI_SUM, SU2_MPI::GetComm());

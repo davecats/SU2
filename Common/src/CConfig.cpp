@@ -1089,6 +1089,11 @@ void CConfig::SetConfig_Options() {
   addEnumOption("KIND_TURB_MODEL", Kind_Turb_Model, Turb_Model_Map, TURB_MODEL::NONE);
   /*!\brief KIND_TRANS_MODEL \n DESCRIPTION: Specify transition model OPTIONS: see \link Trans_Model_Map \endlink \n DEFAULT: NO_TRANS_MODEL \ingroup Config*/
   addEnumOption("KIND_TRANS_MODEL", Kind_Trans_Model, Trans_Model_Map, NO_TRANS_MODEL);
+  /* !\brief TRANSITION_TS_PARAMETERS
+   * DESCRIPTION: Parameters of the transition with turbulent sources
+   * (source term position x, boundary layer thickness SS, boundary layer thickness PS, factor residual) \ingroup Config*/
+  default_transition_ts[0] = 0.0; default_transition_ts[1] = 0.0; default_transition_ts[2] = 0.0; default_transition_ts[3] = 0.0; 
+  addDoubleListOption("TRANS_TS_PARAM", nTransTS_Param, TransTS_Param);
 
   /*!\brief KIND_SGS_MODEL \n DESCRIPTION: Specify subgrid scale model OPTIONS: see \link SGS_Model_Map \endlink \n DEFAULT: NO_SGS_MODEL \ingroup Config*/
   addEnumOption("KIND_SGS_MODEL", Kind_SGS_Model, SGS_Model_Map, NO_SGS_MODEL);
@@ -5679,6 +5684,7 @@ void CConfig::SetOutput(SU2_COMPONENT val_software, unsigned short val_izone) {
         }
         if (QCR) cout << "Using Quadratic Constitutive Relation, 2000 version (QCR2000)" << endl;
         if (Kind_Trans_Model == BC) cout << "Using the revised BC transition model (2020)" << endl;
+        if (Kind_Trans_Model == TS) cout << "Using the turbulet source transition model" << endl;
         cout << "Hybrid RANS/LES: ";
         switch (Kind_HybridRANSLES){
           case NO_HYBRIDRANSLES: cout <<  "No Hybrid RANS/LES" << endl; break;

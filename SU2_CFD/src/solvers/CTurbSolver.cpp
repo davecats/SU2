@@ -330,6 +330,75 @@ void CTurbSolver::LoadRestart(CGeometry** geometry, CSolver*** solver, CConfig* 
 
 void CTurbSolver::Impose_Fixed_Values(const CGeometry *geometry, const CConfig *config){
 
+  /*  /*--- Far-field flow state quantities and initialization. ---*/
+  su2double rhoInf, muLamInf, Intensity, viscRatio, muT_Inf;
+
+  rhoInf    = config->GetDensity_FreeStreamND();
+  const su2double* VeloInf = config->GetVelocity_FreeStreamND();
+  muLamInf  = config->GetViscosity_FreeStreamND();
+  Intensity = config->GetTurbulenceIntensity_FreeStream();
+  viscRatio = config->GetTurb2LamViscRatio_FreeStream();
+
+  su2double VelMag2 = GeometryToolbox::SquaredNorm(nDim, VeloInf);
+
+  su2double kine_Inf  = 3.0/2.0*(VelMag2*Intensity*Intensity);
+  su2double omega_Inf = rhoInf*kine_Inf/(muLamInf*viscRatio);
+
+  Solution_Inf[0] = kine_Inf;
+  Solution_Inf[1] = omega_Inf;
+
+  if(config->GetKind_Trans_Model() == TS){
+    const bool implicit = (config->GetKind_TimeIntScheme() == EULER_IMPLICIT);
+
+    SU2_OMP_FOR_DYN(omp_chunk_size)
+    for (unsigned long iPoint = 0; iPoint < nPointDomain; iPoint++) {
+      
+      su2double *Coord = geometry->nodes->GetCoord(iPoint);
+      su2double trans_pos_x = config->GetTransTS_Param(0);
+      if(Coord[0] < (trans_pos_x-0.01)) {
+        //Solution_Inf[0] = 1e-10;  
+        //Solution_Inf[1] = omega_Inf; 
+        
+        nodes->SetSolution_Old(iPoint, Solution_Inf);
+        nodes->SetSolution(iPoint, Solution_Inf);
+        LinSysRes.SetBlock_Zero(iPoint);
+        if (implicit) {
+          /*--- Change rows of the Jacobian (includes 1 in the diagonal) ---*/
+          for(unsigned long iVar=0; iVar<nVar; iVar++)
+            Jacobian.DeleteValsRowi(iPoint*nVar+iVar);
+        }
+
+        /*--- Set the solution values and zero the residual ---*/
+//        nodes->SetSolution_Old(iPoint, 0, Solution_Inf[0]);
+//        nodes->SetSolution(iPoint, 0, Solution_Inf[0]);
+        //cout << "Solution_0: " << Solution_Inf[0] << endl;        
+        //cout << "Solution_1: " << Solution_Inf[1] << endl;
+
+//        for (unsigned short iDim = 0; iDim < nDim; iDim++)
+//          LinSysRes(iPoint, iDim+1) = 0.0;
+        //LinSysRes(iPoint, 0) = 0.0;
+        //LinSysRes.SetBlock_Zero(iPoint);
+        //if (implicit) {
+        //  for (unsigned long iVar = 0; iVar <= nVar; iVar++) {
+            //total_index = iPoint*nVar+iVar;
+        //    Jacobian.DeleteValsRowi(iPoint*nVar+iVar);
+        //Jacobian.DeleteValsRowi(iPoint);
+        //  }
+       // }
+
+        //LinSysRes.SetBlock_Zero(iPoint);
+//        if (implicit) {
+         /*--- Change rows of the Jacobian (includes 1 in the diagonal) ---*/
+//          for(unsigned long iVar=0; iVar<nVar; iVar++)
+//            Jacobian.DeleteValsRowi(iPoint*nVar+iVar);
+//        } 
+      }   
+    } 
+    END_SU2_OMP_FOR   
+  }
+    
+   
+  
   /*--- Check whether turbulence quantities are fixed to far-field values on a half-plane. ---*/
   if(config->GetTurb_Fixed_Values()){
 

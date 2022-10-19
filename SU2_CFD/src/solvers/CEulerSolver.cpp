@@ -6615,7 +6615,7 @@ void CEulerSolver::BC_Inlet(CGeometry *geometry, CSolver **solver_container,
         case INLET_TYPE::MASS_FLOW:
 
           /*--- Retrieve the specified mass flow for the inlet. ---*/
-
+          
           Density  = Inlet_Ttotal[val_marker][iVertex];
           Vel_Mag  = Inlet_Ptotal[val_marker][iVertex];
           Flow_Dir = Inlet_FlowDir[val_marker][iVertex];

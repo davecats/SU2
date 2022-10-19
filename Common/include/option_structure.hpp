@@ -915,12 +915,14 @@ static const MapType<std::string, TURB_MODEL> Turb_Model_Map = {
 enum ENUM_TRANS_MODEL {
   NO_TRANS_MODEL = 0,  /*!< \brief No transition model. */
   LM = 1,              /*!< \brief Kind of transition model (Langtry-Menter (LM) for SST and Spalart-Allmaras). */
-  BC = 2               /*!< \brief Kind of transition model (BAS-CAKMAKCIOGLU (BC) for Spalart-Allmaras). */
+  BC = 2,              /*!< \brief Kind of transition model (BAS-CAKMAKCIOGLU (BC) for Spalart-Allmaras). */
+  TS = 3,              /*!< \brief Kind of transition model (turbulent source term (TS) for SST). */ 
 };
 static const MapType<std::string, ENUM_TRANS_MODEL> Trans_Model_Map = {
   MakePair("NONE", NO_TRANS_MODEL)
   MakePair("LM", LM)
   MakePair("BC", BC)
+  MakePair("TS", TS)
 };
 
 /*!
@@ -1401,6 +1403,8 @@ enum INLET_TYPE {
   INPUT_FILE,       /*!< \brief User specifies an input file. */
   VELOCITY_INLET,   /*!< \brief Velocity inlet for an incompressible flow. */
   PRESSURE_INLET,   /*!< \brief Total pressure inlet for an incompressible flow. */
+  MASS_FLOW_BLOW,
+  VELOCITY_BLOW,
 };
 static const MapType<std::string, INLET_TYPE> Inlet_Map = {
   MakePair("TOTAL_CONDITIONS", INLET_TYPE::TOTAL_CONDITIONS)
@@ -1408,6 +1412,8 @@ static const MapType<std::string, INLET_TYPE> Inlet_Map = {
   MakePair("INPUT_FILE", INLET_TYPE::INPUT_FILE)
   MakePair("VELOCITY_INLET", INLET_TYPE::VELOCITY_INLET)
   MakePair("PRESSURE_INLET", INLET_TYPE::PRESSURE_INLET)
+  MakePair("MASS_FLOW_BLOW", INLET_TYPE::MASS_FLOW_BLOW)
+  MakePair("VELOCITY_BLOW", INLET_TYPE::VELOCITY_BLOW)
 };
 
 /*!
@@ -1746,7 +1752,7 @@ enum JUMP_DEFINITION {
   RATIO = 2           /*!< \brief Jump given by a ratio. */
 };
 static const MapType<std::string, JUMP_DEFINITION> Jump_Map = {
-  MakePair("DIFFERENCE", DIFFERENCE)
+  MakePair("DIFFERENCE", DIFFERENCE)  
   MakePair("RATIO", RATIO)
 };
 

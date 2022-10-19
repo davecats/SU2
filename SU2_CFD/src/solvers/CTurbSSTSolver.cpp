@@ -262,6 +262,22 @@ void CTurbSSTSolver::Postprocessing(CGeometry *geometry, CSolver **solver_contai
 
     /*--- Compute the eddy viscosity ---*/
 
+    // // >>>
+    // add k=0 before tripping position
+    //su2double kine = 0;
+    //su2double *Coord = geometry->nodes->GetCoord(iPoint);
+    //if (Coord[0]<0.1){
+    //  kine = e-16;
+    //} 
+   // else {
+    //  kine  = nodes->GetSolution(iPoint,0);
+    //} 
+  
+    // //cout << "Coord0: " << Coord[0] << endl;
+    // //cout << "Coord1: " << Coord[1] << endl;
+
+    // // <<< 
+
     su2double kine  = nodes->GetSolution(iPoint,0);
     su2double omega = nodes->GetSolution(iPoint,1);
     su2double zeta  = min(1.0/omega, a1/(VorticityMag*F2));
@@ -353,8 +369,16 @@ void CTurbSSTSolver::Source_Residual(CGeometry *geometry, CSolver **solver_conta
     }
 
     /*--- Compute the source term ---*/
+    // >>>
+    su2double *Coord_pos = geometry->nodes->GetCoord(iPoint);
+    su2double Coord_pos_x = Coord_pos[0]; 
+    su2double Coord_pos_y = Coord_pos[1]; 
+    //cout << Coord_pos[0] << endl; 
+    auto residual = numerics->ComputeResidual(config,Coord_pos_x,Coord_pos_y);
+    // <<<
+    //auto residual = numerics->ComputeResidual(config);
 
-    auto residual = numerics->ComputeResidual(config);
+    
 
     /*--- Subtract residual and the Jacobian ---*/
 
@@ -445,7 +469,7 @@ void CTurbSSTSolver::BC_HeatFlux_Wall(CGeometry *geometry, CSolver **solver_cont
 
         su2double distance2 = GeometryToolbox::SquaredDistance(nDim,
                                                              geometry->nodes->GetCoord(iPoint),
-                                                             geometry->nodes->GetCoord(jPoint));
+                                                             geometry->nodes->GetCoord(jPoint));                                                     
         /*--- Set wall values ---*/
 
         su2double density = solver_container[FLOW_SOL]->GetNodes()->GetDensity(jPoint);
@@ -453,6 +477,17 @@ void CTurbSSTSolver::BC_HeatFlux_Wall(CGeometry *geometry, CSolver **solver_cont
 
         su2double beta_1 = constants[4];
         su2double solution[MAXNVAR];
+
+        //>>>
+        //su2double *Coord = geometry->nodes->GetCoord(iPoint);
+        //if (Coord[0]<0.09) {
+        //  solution[0] = 1e-16;
+        //}  
+        //else {
+        //  solution[0] = 0; 
+        //}  
+        //<<<
+
         solution[0] = 0.0;
         solution[1] = 60.0*laminar_viscosity/(density*beta_1*distance2);
 
@@ -477,7 +512,6 @@ void CTurbSSTSolver::SetTurbVars_WF(CGeometry *geometry, CSolver **solver_contai
                                     const CConfig *config, unsigned short val_marker) {
 
   const bool implicit = (config->GetKind_TimeIntScheme() == EULER_IMPLICIT);
-
   /*--- von Karman constant from boundary layer theory ---*/
   const su2double kappa = config->GetwallModel_Kappa();
   const su2double minYPlus = config->GetwallModel_MinYPlus();

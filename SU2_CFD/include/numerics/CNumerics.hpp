@@ -1310,6 +1310,16 @@ public:
    */
   inline virtual ResidualType<> ComputeResidual(const CConfig* config) { return ResidualType<>(nullptr,nullptr,nullptr); }
 
+  // >>>
+  /*!
+   * \overload For numerics classes that store the residual/flux and Jacobians internally.
+   * \param[in] config - Definition of the particular problem.
+   * \return A lightweight const-view (read-only) of the residual/flux and Jacobians.
+   */
+  inline virtual ResidualType<> ComputeResidual(const CConfig* config, su2double Coord_Pos_x, su2double Coord_Pos_y) { return ResidualType<>(nullptr,nullptr,nullptr); }
+  // <<< 
+
+
   /*!
    * \overload
    * \param[out] val_residual_i - Pointer to the total residual at point i.

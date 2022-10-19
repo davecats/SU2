@@ -1,0 +1,754 @@
+CAdjEulerSolver.cpp:  unsigned long iPoint, iVertex;
+CAdjEulerSolver.cpp:    for (iVertex = 0; iVertex < geometry->nVertex[iMarker]; iVertex++) {
+CAdjEulerSolver.cpp:      DonorAdjVar[iMarker][iVertex] = new su2double [nVar];
+CAdjEulerSolver.cpp:        DonorAdjVar[iMarker][iVertex][iVar] = 0.0;
+CAdjEulerSolver.cpp:    for (iVertex = 0; iVertex < geometry->nVertex[iMarker]; iVertex++) {
+CAdjEulerSolver.cpp:      DonorGlobalIndex[iMarker][iVertex] = 0;
+CAdjEulerSolver.cpp:    for (iVertex = 0; iVertex < geometry->nVertex[iMarker]; iVertex++)
+CAdjEulerSolver.cpp:      CSensitivity[iMarker][iVertex] = 0.0;
+CAdjEulerSolver.cpp:          for (iVertex = 0; iVertex < geometry->nVertex[iMarker]; iVertex++) {
+CAdjEulerSolver.cpp:            iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+CAdjEulerSolver.cpp:              Normal = geometry->vertex[iMarker][iVertex]->GetNormal();
+CAdjEulerSolver.cpp:  unsigned long iter,  iPoint, iVertex, jVertex, iPointTotal,
+CAdjEulerSolver.cpp:        for (iVertex = 0; iVertex < geometry->nVertex[iMarker]; iVertex++) {
+CAdjEulerSolver.cpp:          iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+CAdjEulerSolver.cpp:          jDomain = geometry->vertex[iMarker][iVertex]->GetDonorProcessor();
+CAdjEulerSolver.cpp:        for (iVertex = 0; iVertex < geometry->nVertex[iMarker]; iVertex++) {
+CAdjEulerSolver.cpp:          iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+CAdjEulerSolver.cpp:          jDomain = geometry->vertex[iMarker][iVertex]->GetDonorProcessor();
+CAdjEulerSolver.cpp:            jVertex = geometry->vertex[iMarker][iVertex]->GetDonorVertex();
+CAdjEulerSolver.cpp:            jMarker = geometry->vertex[iMarker][iVertex]->GetDonorMarker();
+CAdjEulerSolver.cpp:        iVertex      = SU2_TYPE::Int(Buffer_Receive_AdjVar[iPoint*(nVar+3)+(nVar+1)]);
+CAdjEulerSolver.cpp:          SetDonorAdjVar(iMarker, iVertex, iVar, iAdjVar[iVar]);
+CAdjEulerSolver.cpp:        SetDonorGlobalIndex(iMarker, iVertex, iGlobal);
+CAdjEulerSolver.cpp:        iVertex      = SU2_TYPE::Int(Buffer_Receive_AdjVar[iPoint*(nVar+3)+(nVar+1)]);
+CAdjEulerSolver.cpp:          SetDonorAdjVar(iMarker, iVertex, iVar, iAdjVar[iVar]);
+CAdjEulerSolver.cpp:        SetDonorGlobalIndex(iMarker, iVertex, iGlobal);
+CAdjEulerSolver.cpp:  unsigned long iVertex, iPoint;
+CAdjEulerSolver.cpp:      for (iVertex = 0; iVertex < geometry->nVertex[iMarker]; iVertex++) {
+CAdjEulerSolver.cpp:        iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+CAdjEulerSolver.cpp:      for (iVertex = 0; iVertex < geometry->nVertex[iMarker]; iVertex++) {
+CAdjEulerSolver.cpp:        iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+CAdjEulerSolver.cpp:        Normal = geometry->vertex[iMarker][iVertex]->GetNormal();
+CAdjEulerSolver.cpp:            Cp = solver_container[FLOW_SOL]->GetCPressure(iMarker, iVertex);
+CAdjEulerSolver.cpp:            CpTarget = solver_container[FLOW_SOL]->GetCPressureTarget(iMarker, iVertex);
+CAdjEulerSolver.cpp:  unsigned long iVertex, iPoint, Neigh;
+CAdjEulerSolver.cpp:      for (iVertex = 0; iVertex < geometry->nVertex[iMarker]; iVertex++) {
+CAdjEulerSolver.cpp:        iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+CAdjEulerSolver.cpp:      for (iVertex = 0; iVertex < geometry->nVertex[iMarker]; iVertex++) {
+CAdjEulerSolver.cpp:        iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+CAdjEulerSolver.cpp:          Normal = geometry->vertex[iMarker][iVertex]->GetNormal();
+CAdjEulerSolver.cpp:          CSensitivity[iMarker][iVertex] = (d_press + grad_v + v_gradconspsi) * Area * scale * factor;
+CAdjEulerSolver.cpp:              CSensitivity[iMarker][iVertex] = 0.0;
+CAdjEulerSolver.cpp:          Sens_Geo[iMarker] -= CSensitivity[iMarker][iVertex];
+CAdjEulerSolver.cpp:      for (iVertex = 0; iVertex < geometry->nVertex[iMarker]; iVertex++) {
+CAdjEulerSolver.cpp:        iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+CAdjEulerSolver.cpp:          Normal = geometry->vertex[iMarker][iVertex]->GetNormal();
+CAdjEulerSolver.cpp:      for (iVertex = 0; iVertex < geometry->nVertex[iMarker]; iVertex++) {
+CAdjEulerSolver.cpp:        iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+CAdjEulerSolver.cpp:          Normal = geometry->vertex[iMarker][iVertex]->GetNormal();
+CAdjEulerSolver.cpp:      for (iVertex = 0; iVertex < geometry->nVertex[iMarker]; iVertex++) {
+CAdjEulerSolver.cpp:        iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+CAdjEulerSolver.cpp:          Normal = geometry->vertex[iMarker][iVertex]->GetNormal();
+CAdjEulerSolver.cpp:  unsigned long iVertex, jVertex, nVertex, iPoint;
+CAdjEulerSolver.cpp:      for (iVertex = 0; iVertex < nVertex; iVertex++) {
+CAdjEulerSolver.cpp:        A[iVertex] = new su2double [nVertex];
+CAdjEulerSolver.cpp:      for (iVertex = 0; iVertex < nVertex; iVertex++) {
+CAdjEulerSolver.cpp:        b[iVertex] = 0.0; ArchLength[iVertex] = 0.0;
+CAdjEulerSolver.cpp:          A[iVertex][jVertex] = 0.0;
+CAdjEulerSolver.cpp:      for (iVertex = 1; iVertex < nVertex; iVertex++) {
+CAdjEulerSolver.cpp:        iPoint = geometry->vertex[iMarker][iVertex-1]->GetNode();
+CAdjEulerSolver.cpp:        iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+CAdjEulerSolver.cpp:        ArchLength[iVertex] = ArchLength[iVertex-1] + dist;
+CAdjEulerSolver.cpp:      for (iVertex = 0; iVertex < nVertex; iVertex++) {
+CAdjEulerSolver.cpp:        Sens = CSensitivity[iMarker][iVertex];
+CAdjEulerSolver.cpp:        if (ArchLength[iVertex] > ArchLength[nVertex-1]*0.01) { MinNegSens = Sens; break; }
+CAdjEulerSolver.cpp:      for (iVertex = 0; iVertex < nVertex; iVertex++) {
+CAdjEulerSolver.cpp:        Sens = CSensitivity[iMarker][iVertex];
+CAdjEulerSolver.cpp:        if (ArchLength[iVertex] > ArchLength[nVertex-1]*0.99) { MinPosSens = Sens; break; }
+CAdjEulerSolver.cpp:      for (iVertex = 0; iVertex < nVertex; iVertex++) {
+CAdjEulerSolver.cpp:        if (ArchLength[iVertex] < ArchLength[nVertex-1]*0.01)
+CAdjEulerSolver.cpp:          CSensitivity[iMarker][iVertex] = MinNegSens;
+CAdjEulerSolver.cpp:        if (ArchLength[iVertex] > ArchLength[nVertex-1]*0.99)
+CAdjEulerSolver.cpp:          CSensitivity[iMarker][iVertex] = MinPosSens;
+CAdjEulerSolver.cpp:      for (iVertex = 0; iVertex < nVertex; iVertex++) {
+CAdjEulerSolver.cpp:        b[iVertex] = CSensitivity[iMarker][iVertex];
+CAdjEulerSolver.cpp:      for (iVertex = 0; iVertex < nVertex; iVertex++) {
+CAdjEulerSolver.cpp:        if ((iVertex != nVertex-1) && (iVertex != 0)) {
+CAdjEulerSolver.cpp:          BackDiff = (ArchLength[iVertex]-ArchLength[iVertex-1]);
+CAdjEulerSolver.cpp:          ForwDiff = (ArchLength[iVertex+1]-ArchLength[iVertex]);
+CAdjEulerSolver.cpp:          CentDiff = (ArchLength[iVertex+1]-ArchLength[iVertex-1]);
+CAdjEulerSolver.cpp:        if (iVertex == nVertex-1) {
+CAdjEulerSolver.cpp:        if (iVertex == 0) {
+CAdjEulerSolver.cpp:        A[iVertex][iVertex] = Coeff*CentDiff;
+CAdjEulerSolver.cpp:        if (iVertex != 0) A[iVertex][iVertex-1] = -Coeff*ForwDiff;
+CAdjEulerSolver.cpp:        else A[iVertex][nVertex-1] = -Coeff*ForwDiff;
+CAdjEulerSolver.cpp:        if (iVertex != nVertex-1) A[iVertex][iVertex+1] = -Coeff*BackDiff;
+CAdjEulerSolver.cpp:        else A[iVertex][0] = -Coeff*BackDiff;
+CAdjEulerSolver.cpp:      for (iVertex = 0; iVertex < nVertex; iVertex++)
+CAdjEulerSolver.cpp:        A[iVertex][iVertex] += 1.0;
+CAdjEulerSolver.cpp:      unsigned long iVertex = SU2_TYPE::Int(nVertex/2);
+CAdjEulerSolver.cpp:      A[iVertex][iVertex] = 1.0;
+CAdjEulerSolver.cpp:      A[iVertex][iVertex+1] = 0.0;
+CAdjEulerSolver.cpp:      A[iVertex][iVertex-1] = 0.0;
+CAdjEulerSolver.cpp:      for (iVertex = 0; iVertex < nVertex; iVertex++)
+CAdjEulerSolver.cpp:        CSensitivity[iMarker][iVertex] = b[iVertex];
+CAdjEulerSolver.cpp:      for (iVertex = 0; iVertex < nVertex; iVertex++)
+CAdjEulerSolver.cpp:        delete [] A[iVertex];
+CAdjEulerSolver.cpp:  unsigned long iVertex, iPoint;
+CAdjEulerSolver.cpp:  for (iVertex = 0; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CAdjEulerSolver.cpp:    iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CAdjEulerSolver.cpp:      Normal = geometry->vertex[val_marker][iVertex]->GetNormal();
+CAdjEulerSolver.cpp:  unsigned long iVertex, iPoint;
+CAdjEulerSolver.cpp:  for (iVertex = 0; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CAdjEulerSolver.cpp:    iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CAdjEulerSolver.cpp:      geometry->vertex[val_marker][iVertex]->GetNormal(Normal);
+CAdjEulerSolver.cpp:  unsigned long iVertex, iPoint, Point_Normal;
+CAdjEulerSolver.cpp:  for (iVertex = 0; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CAdjEulerSolver.cpp:    iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CAdjEulerSolver.cpp:      Point_Normal = geometry->vertex[val_marker][iVertex]->GetNormal_Neighbor();
+CAdjEulerSolver.cpp:      geometry->vertex[val_marker][iVertex]->GetNormal(Normal);
+CAdjEulerSolver.cpp:      V_infty = solver_container[FLOW_SOL]->GetCharacPrimVar(val_marker, iVertex);
+CAdjEulerSolver.cpp:  unsigned long iVertex, iPoint, Point_Normal;
+CAdjEulerSolver.cpp:  for (iVertex = 0; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CAdjEulerSolver.cpp:    iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CAdjEulerSolver.cpp:      geometry->vertex[val_marker][iVertex]->GetNormal(Normal);
+CAdjEulerSolver.cpp:      V_inlet = solver_container[FLOW_SOL]->GetCharacPrimVar(val_marker, iVertex);
+CAdjEulerSolver.cpp:        Point_Normal = geometry->vertex[val_marker][iVertex]->GetNormal_Neighbor();
+CAdjEulerSolver.cpp:  unsigned long iVertex, iPoint, Point_Normal;
+CAdjEulerSolver.cpp:  for (iVertex = 0; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CAdjEulerSolver.cpp:    iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CAdjEulerSolver.cpp:      geometry->vertex[val_marker][iVertex]->GetNormal(Normal);
+CAdjEulerSolver.cpp:      V_outlet = solver_container[FLOW_SOL]->GetCharacPrimVar(val_marker, iVertex);
+CAdjEulerSolver.cpp:        Point_Normal = geometry->vertex[val_marker][iVertex]->GetNormal_Neighbor();
+CAdjEulerSolver.cpp:  unsigned long iVertex, iPoint, Point_Normal;
+CAdjEulerSolver.cpp:  for (iVertex = 0; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CAdjEulerSolver.cpp:    iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CAdjEulerSolver.cpp:      geometry->vertex[val_marker][iVertex]->GetNormal(Normal);
+CAdjEulerSolver.cpp:      V_inlet = solver_container[FLOW_SOL]->GetCharacPrimVar(val_marker, iVertex);
+CAdjEulerSolver.cpp:        Point_Normal = geometry->vertex[val_marker][iVertex]->GetNormal_Neighbor();
+CAdjEulerSolver.cpp:  unsigned long iVertex, iPoint, Point_Normal;
+CAdjEulerSolver.cpp:  for (iVertex = 0; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CAdjEulerSolver.cpp:    iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CAdjEulerSolver.cpp:      geometry->vertex[val_marker][iVertex]->GetNormal(Normal);
+CAdjEulerSolver.cpp:      Point_Normal = geometry->vertex[val_marker][iVertex]->GetNormal_Neighbor();
+CAdjEulerSolver.cpp:      V_outlet = solver_container[FLOW_SOL]->GetCharacPrimVar(val_marker, iVertex);
+CAdjEulerSolver.cpp:  unsigned long iVertex, iPoint;
+CAdjEulerSolver.cpp:  for (iVertex = 0; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CAdjEulerSolver.cpp:    iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CAdjEulerSolver.cpp:      geometry->vertex[val_marker][iVertex]->GetNormal(Normal);
+CAdjEulerSolver.cpp:      V_inflow = solver_container[FLOW_SOL]->GetCharacPrimVar(val_marker, iVertex);
+CAdjEulerSolver.cpp:  unsigned long iVertex, iPoint, Point_Normal;
+CAdjEulerSolver.cpp:  for (iVertex = 0; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CAdjEulerSolver.cpp:    iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CAdjEulerSolver.cpp:      geometry->vertex[val_marker][iVertex]->GetNormal(Normal);
+CAdjEulerSolver.cpp:      Point_Normal = geometry->vertex[val_marker][iVertex]->GetNormal_Neighbor();
+CAdjEulerSolver.cpp:      V_exhaust = solver_container[FLOW_SOL]->GetCharacPrimVar(val_marker, iVertex);
+CAdjEulerSolver.cpp:  unsigned long iVertex, iPoint, GlobalIndex_inlet, GlobalIndex;
+CAdjEulerSolver.cpp:  for (iVertex = 0; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CAdjEulerSolver.cpp:    GlobalIndex_inlet = solver_container[FLOW_SOL]->GetDonorGlobalIndex(val_marker, iVertex);
+CAdjEulerSolver.cpp:    iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CAdjEulerSolver.cpp:      geometry->vertex[val_marker][iVertex]->GetNormal(Normal);
+CAdjEulerSolver.cpp:      V_inlet = solver_container[FLOW_SOL]->GetCharacPrimVar(val_marker, iVertex);
+CAdjEulerSolver.cpp:  unsigned long iVertex, iPoint, GlobalIndex_inlet, GlobalIndex;
+CAdjEulerSolver.cpp:  for (iVertex = 0; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CAdjEulerSolver.cpp:    GlobalIndex_inlet = solver_container[FLOW_SOL]->GetDonorGlobalIndex(val_marker, iVertex);
+CAdjEulerSolver.cpp:    iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CAdjEulerSolver.cpp:      geometry->vertex[val_marker][iVertex]->GetNormal(Normal);
+CAdjEulerSolver.cpp:      V_outlet = solver_container[FLOW_SOL]->GetCharacPrimVar(val_marker, iVertex);
+CAdjEulerSolver.cpp:      Point_Normal = geometry->vertex[val_marker][iVertex]->GetNormal_Neighbor();
+CAdjEulerSolver.cpp:  unsigned long iPoint, jPoint, iVertex;
+CAdjEulerSolver.cpp:      for (iVertex = 0; iVertex < geometry->nVertex[iMarker]; iVertex++) {
+CAdjEulerSolver.cpp:        iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+CAdjNSSolver.cpp:  unsigned long iPoint, iVertex;
+CAdjNSSolver.cpp:    for (iVertex = 0; iVertex < geometry->nVertex[iMarker]; iVertex++) {
+CAdjNSSolver.cpp:      DonorAdjVar[iMarker][iVertex] = new su2double [nVar];
+CAdjNSSolver.cpp:        DonorAdjVar[iMarker][iVertex][iVar] = 0.0;
+CAdjNSSolver.cpp:    for (iVertex = 0; iVertex < geometry->nVertex[iMarker]; iVertex++) {
+CAdjNSSolver.cpp:      DonorGlobalIndex[iMarker][iVertex] = 0;
+CAdjNSSolver.cpp:    for (iVertex = 0; iVertex < geometry->nVertex[iMarker]; iVertex++)
+CAdjNSSolver.cpp:      CSensitivity[iMarker][iVertex] = 0.0;
+CAdjNSSolver.cpp:           for (iVertex = 0; iVertex < geometry->nVertex[iMarker]; iVertex++) {
+CAdjNSSolver.cpp:             iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+CAdjNSSolver.cpp:               Normal = geometry->vertex[iMarker][iVertex]->GetNormal();
+CAdjNSSolver.cpp:  unsigned long iVertex, iPoint;
+CAdjNSSolver.cpp:      for (iVertex = 0; iVertex < geometry->nVertex[iMarker]; iVertex++) {
+CAdjNSSolver.cpp:        iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+CAdjNSSolver.cpp:          Normal = geometry->vertex[iMarker][iVertex]->GetNormal();
+CAdjNSSolver.cpp:          CSensitivity[iMarker][iVertex] = (sigma_partial - temp_sens) * Area * scale * factor;
+CAdjNSSolver.cpp:              CSensitivity[iMarker][iVertex] = 0.0;
+CAdjNSSolver.cpp:          Sens_Geo[iMarker] -= CSensitivity[iMarker][iVertex];
+CAdjNSSolver.cpp:      for (iVertex = 0; iVertex < geometry->nVertex[iMarker]; iVertex++) {
+CAdjNSSolver.cpp:        iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+CAdjNSSolver.cpp:          Normal = geometry->vertex[iMarker][iVertex]->GetNormal();
+CAdjNSSolver.cpp:      for (iVertex = 0; iVertex < geometry->nVertex[iMarker]; iVertex++) {
+CAdjNSSolver.cpp:        iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+CAdjNSSolver.cpp:          Normal = geometry->vertex[iMarker][iVertex]->GetNormal();
+CAdjNSSolver.cpp:  unsigned long iVertex, iPoint, total_index, Point_Normal;
+CAdjNSSolver.cpp:  for (iVertex = 0; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CAdjNSSolver.cpp:    iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CAdjNSSolver.cpp:      geometry->vertex[val_marker][iVertex]->GetNormal(Normal);
+CAdjNSSolver.cpp:            Point_Normal = geometry->vertex[val_marker][iVertex]->GetNormal_Neighbor();
+CAdjNSSolver.cpp:            Point_Normal = geometry->vertex[val_marker][iVertex]->GetNormal_Neighbor();
+CAdjNSSolver.cpp:  unsigned long iVertex, iPoint, total_index;
+CAdjNSSolver.cpp:  for (iVertex = 0; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CAdjNSSolver.cpp:    iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CAdjNSSolver.cpp:      geometry->vertex[val_marker][iVertex]->GetNormal(Normal);
+CAdjTurbSolver.cpp:  unsigned long iPoint, iVertex;
+CAdjTurbSolver.cpp:  for (iVertex = 0; iVertex<geometry->nVertex[val_marker]; iVertex++) {
+CAdjTurbSolver.cpp:    iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CAdjTurbSolver.cpp:  unsigned long iPoint, iVertex;
+CAdjTurbSolver.cpp:  for (iVertex = 0; iVertex<geometry->nVertex[val_marker]; iVertex++) {
+CAdjTurbSolver.cpp:    iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CAdjTurbSolver.cpp:  unsigned long iPoint, iVertex;
+CAdjTurbSolver.cpp:  for (iVertex = 0; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CAdjTurbSolver.cpp:    iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CAdjTurbSolver.cpp:    conv_numerics->SetNormal(geometry->vertex[val_marker][iVertex]->GetNormal());
+CDiscAdjFEASolver.cpp:      long iVertex = geometry->nodes->GetVertex(iPoint, iMarker);
+CDiscAdjFEASolver.cpp:      if (iVertex >= 0) {
+CDiscAdjMeshSolver.cpp:      long iVertex = geometry->nodes->GetVertex(iPoint, iMarker);
+CDiscAdjMeshSolver.cpp:      if (iVertex >= 0) {
+CDiscAdjSolver.cpp:    for (auto iVertex = 0ul; iVertex < geometry->GetnVertex(iMarker); iVertex++) {
+CDiscAdjSolver.cpp:      const auto iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+CDiscAdjSolver.cpp:      const auto Normal = geometry->vertex[iMarker][iVertex]->GetNormal();
+CDiscAdjSolver.cpp:      CSensitivity[iMarker][iVertex] = -Sens_Vertex;
+CEulerSolver.cpp:  unsigned long iter,  iPoint, iVertex, jVertex, iPointTotal,
+CEulerSolver.cpp:        for (iVertex = 0; iVertex < geometry->nVertex[iMarker]; iVertex++) {
+CEulerSolver.cpp:          //ActDisk_Perimeter = geometry->vertex[iMarker][iVertex]->GetActDisk_Perimeter();
+CEulerSolver.cpp:          iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+CEulerSolver.cpp:          jDomain = geometry->vertex[iMarker][iVertex]->GetDonorProcessor();
+CEulerSolver.cpp:        for (iVertex = 0; iVertex < geometry->nVertex[iMarker]; iVertex++) {
+CEulerSolver.cpp:          iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+CEulerSolver.cpp:          jDomain = geometry->vertex[iMarker][iVertex]->GetDonorProcessor();
+CEulerSolver.cpp:          //ActDisk_Perimeter = geometry->vertex[iMarker][iVertex]->GetActDisk_Perimeter();
+CEulerSolver.cpp:            jVertex = geometry->vertex[iMarker][iVertex]->GetDonorVertex();
+CEulerSolver.cpp:            jMarker = geometry->vertex[iMarker][iVertex]->GetDonorMarker();
+CEulerSolver.cpp:        iVertex      =  Buffer_Receive_Data[iPoint*(3)+(1)];
+CEulerSolver.cpp:          DonorPrimVar[iMarker][iVertex][iVar] = iPrimVar[iVar];
+CEulerSolver.cpp:        SetDonorGlobalIndex(iMarker, iVertex, iGlobal);
+CEulerSolver.cpp:        iVertex      = Buffer_Receive_Data[iPoint*(3)+(1)];
+CEulerSolver.cpp:          DonorPrimVar[iMarker][iVertex][iVar] = iPrimVar[iVar];
+CEulerSolver.cpp:        SetDonorGlobalIndex(iMarker, iVertex, iGlobal);
+CEulerSolver.cpp:  unsigned long iVertex, iPoint;
+CEulerSolver.cpp:        for (iVertex = 0; iVertex < geometry->nVertex[iMarker]; iVertex++) {
+CEulerSolver.cpp:          iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+CEulerSolver.cpp:            geometry->vertex[iMarker][iVertex]->GetNormal(Vector);
+CEulerSolver.cpp:        for (iVertex = 0; iVertex < geometry->nVertex[iMarker]; iVertex++) {
+CEulerSolver.cpp:          iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+CEulerSolver.cpp:            geometry->vertex[iMarker][iVertex]->GetNormal(Vector);
+CEulerSolver.cpp:  unsigned long iVertex, iPoint;
+CEulerSolver.cpp:        for (iVertex = 0; iVertex < geometry->nVertex[iMarker]; iVertex++) {
+CEulerSolver.cpp:          iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+CEulerSolver.cpp:          ActDisk_DeltaP[iMarker][iVertex] = DeltaP;
+CEulerSolver.cpp:          ActDisk_DeltaT[iMarker][iVertex] = DeltaT;
+CEulerSolver.cpp:          for (iVertex = 0; iVertex < geometry->nVertex[iMarker]; iVertex++) {
+CEulerSolver.cpp:            iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+CEulerSolver.cpp:              geometry->vertex[iMarker][iVertex]->GetNormal(Vector);
+CEulerSolver.cpp:                V_inlet = DonorPrimVar[iMarker][iVertex];
+CEulerSolver.cpp:                ActDisk_DeltaT[iMarker][iVertex] = To_Ti;
+CEulerSolver.cpp:                ActDisk_DeltaP[iMarker][iVertex] = Po_Pi;
+CEulerSolver.cpp:                ActDisk_DeltaT[iMarker][iVertex] = 1.0;
+CEulerSolver.cpp:                ActDisk_DeltaP[iMarker][iVertex] = 1.0;
+CEulerSolver.cpp:  unsigned long iVertex, iPoint;
+CEulerSolver.cpp:          for (iVertex = 0; iVertex < geometry->nVertex[iMarker]; iVertex++) {
+CEulerSolver.cpp:            iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+CEulerSolver.cpp:                ActDisk_Fa[iMarker][iVertex] = Fa[iEl-1] + (Fa[iEl]-Fa[iEl-1])*h;
+CEulerSolver.cpp:                ActDisk_Fx[iMarker][iVertex] = Fx;
+CEulerSolver.cpp:                ActDisk_Fy[iMarker][iVertex] = Fy;
+CEulerSolver.cpp:                ActDisk_Fz[iMarker][iVertex] = Fz;
+CEulerSolver.cpp:  unsigned long iVertex, iPoint, Point_Normal;
+CEulerSolver.cpp:  for (iVertex = 0; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CEulerSolver.cpp:    iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CEulerSolver.cpp:    V_infty = GetCharacPrimVar(val_marker, iVertex);
+CEulerSolver.cpp:      Point_Normal = geometry->vertex[val_marker][iVertex]->GetNormal_Neighbor();
+CEulerSolver.cpp:      geometry->vertex[val_marker][iVertex]->GetNormal(Normal);
+CEulerSolver.cpp:  unsigned long iVertex, iPoint, Point_Normal;
+CEulerSolver.cpp:  for (iVertex = 0; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CEulerSolver.cpp:    V_boundary= GetCharacPrimVar(val_marker, iVertex);
+CEulerSolver.cpp:    iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CEulerSolver.cpp:      Point_Normal = geometry->vertex[val_marker][iVertex]->GetNormal_Neighbor();
+CEulerSolver.cpp:      geometry->vertex[val_marker][iVertex]->GetNormal(Normal);
+CEulerSolver.cpp:  unsigned long iPoint, Point_Normal, oldVertex, iVertex;
+CEulerSolver.cpp:    for (iVertex = 0; iVertex < geometry->GetnVertexSpan(val_marker,iSpan); iVertex++) {
+CEulerSolver.cpp:      oldVertex = geometry->turbovertex[val_marker][iSpan][iVertex]->GetOldVertex();
+CEulerSolver.cpp:      iPoint = geometry->turbovertex[val_marker][iSpan][iVertex]->GetNode();
+CEulerSolver.cpp:        geometry->turbovertex[val_marker][iSpan][iVertex]->GetNormal(UnitNormal);
+CEulerSolver.cpp:        geometry->turbovertex[val_marker][iSpan][iVertex]->GetTurboNormal(turboNormal);
+CEulerSolver.cpp:  unsigned long  iPoint, kend_max, k, iVertex;
+CEulerSolver.cpp:              for (iVertex = 0; iVertex < geometry->GetnVertexSpan(iMarker,iSpan); iVertex++) {
+CEulerSolver.cpp:                iPoint = geometry->turbovertex[iMarker][iSpan][iVertex]->GetNode();
+CEulerSolver.cpp:                geometry->turbovertex[iMarker][iSpan][iVertex]->GetTurboNormal(turboNormal);
+CEulerSolver.cpp:                theta      = geometry->turbovertex[iMarker][iSpan][iVertex]->GetRelAngularCoord();
+CEulerSolver.cpp:                deltaTheta = geometry->turbovertex[iMarker][iSpan][iVertex]->GetDeltaAngularCoord();
+CEulerSolver.cpp:  unsigned long  iPoint, Point_Normal, oldVertex, k, kend, kend_max, iVertex;
+CEulerSolver.cpp:    for (iVertex = 0; iVertex < geometry->GetnVertexSpan(val_marker,iSpan); iVertex++) {
+CEulerSolver.cpp:      oldVertex = geometry->turbovertex[val_marker][iSpan][iVertex]->GetOldVertex();
+CEulerSolver.cpp:      iPoint = geometry->turbovertex[val_marker][iSpan][iVertex]->GetNode();
+CEulerSolver.cpp:      geometry->turbovertex[val_marker][iSpan][iVertex]->GetNormal(UnitNormal);
+CEulerSolver.cpp:      geometry->turbovertex[val_marker][iSpan][iVertex]->GetTurboNormal(turboNormal);
+CEulerSolver.cpp:      theta      = geometry->turbovertex[val_marker][iSpan][iVertex]->GetRelAngularCoord();
+CEulerSolver.cpp:  unsigned long iVertex, iPoint;
+CEulerSolver.cpp:  for (iVertex = 0; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CEulerSolver.cpp:    V_inlet = GetCharacPrimVar(val_marker, iVertex);
+CEulerSolver.cpp:    iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CEulerSolver.cpp:      geometry->vertex[val_marker][iVertex]->GetNormal(Normal);
+CEulerSolver.cpp:          P_Total  = Inlet_Ptotal[val_marker][iVertex];
+CEulerSolver.cpp:          T_Total  = Inlet_Ttotal[val_marker][iVertex];
+CEulerSolver.cpp:          Flow_Dir = Inlet_FlowDir[val_marker][iVertex];
+CEulerSolver.cpp:          Density  = Inlet_Ttotal[val_marker][iVertex];
+CEulerSolver.cpp:          Vel_Mag  = Inlet_Ptotal[val_marker][iVertex];
+CEulerSolver.cpp:          Flow_Dir = Inlet_FlowDir[val_marker][iVertex];
+CEulerSolver.cpp:  unsigned long iVertex, iPoint;
+CEulerSolver.cpp:  for (iVertex = 0; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CEulerSolver.cpp:    V_outlet = GetCharacPrimVar(val_marker, iVertex);
+CEulerSolver.cpp:    iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CEulerSolver.cpp:      geometry->vertex[val_marker][iVertex]->GetNormal(Normal);
+CEulerSolver.cpp:  unsigned long iVertex, iPoint;
+CEulerSolver.cpp:  for (iVertex = 0; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CEulerSolver.cpp:    V_inlet = GetCharacPrimVar(val_marker, iVertex);
+CEulerSolver.cpp:    iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CEulerSolver.cpp:      geometry->vertex[val_marker][iVertex]->GetNormal(Normal);
+CEulerSolver.cpp:  unsigned long iVertex, iPoint;
+CEulerSolver.cpp:  for (iVertex = 0; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CEulerSolver.cpp:    iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CEulerSolver.cpp:      V_outlet = GetCharacPrimVar(val_marker, iVertex);
+CEulerSolver.cpp:      geometry->vertex[val_marker][iVertex]->GetNormal(Normal);
+CEulerSolver.cpp:  unsigned long iVertex, iPoint;
+CEulerSolver.cpp:  for (iVertex = 0; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CEulerSolver.cpp:    V_inflow = GetCharacPrimVar(val_marker, iVertex);
+CEulerSolver.cpp:    iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CEulerSolver.cpp:      geometry->vertex[val_marker][iVertex]->GetNormal(Normal);
+CEulerSolver.cpp:  unsigned long iVertex, iPoint;
+CEulerSolver.cpp:  for (iVertex = 0; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CEulerSolver.cpp:    V_exhaust = GetCharacPrimVar(val_marker, iVertex);
+CEulerSolver.cpp:    iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CEulerSolver.cpp:      geometry->vertex[val_marker][iVertex]->GetNormal(Normal);
+CEulerSolver.cpp:  unsigned long iVertex, iPoint, GlobalIndex_donor, GlobalIndex;
+CEulerSolver.cpp:  for (iVertex = 0; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CEulerSolver.cpp:    iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CEulerSolver.cpp:    GlobalIndex_donor = GetDonorGlobalIndex(val_marker, iVertex);
+CEulerSolver.cpp:      geometry->vertex[val_marker][iVertex]->GetNormal(Normal);
+CEulerSolver.cpp:      Target_Press_Jump = ActDisk_DeltaP[val_marker][iVertex];
+CEulerSolver.cpp:      Target_Temp_Jump = ActDisk_DeltaT[val_marker][iVertex];
+CEulerSolver.cpp:        V_outlet = DonorPrimVar[val_marker][iVertex];
+CEulerSolver.cpp:        V_inlet  = DonorPrimVar[val_marker][iVertex];
+CEulerSolver.cpp:  unsigned long iVertex, iPoint, GlobalIndex_donor, GlobalIndex;
+CEulerSolver.cpp:  for (iVertex = 0; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CEulerSolver.cpp:    iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CEulerSolver.cpp:    GlobalIndex_donor = GetDonorGlobalIndex(val_marker, iVertex);
+CEulerSolver.cpp:      geometry->vertex[val_marker][iVertex]->GetNormal(Normal);
+CEulerSolver.cpp:      Fa = ActDisk_Fa[val_marker][iVertex];
+CEulerSolver.cpp:      Fx = ActDisk_Fx[val_marker][iVertex];
+CEulerSolver.cpp:      Fy = ActDisk_Fy[val_marker][iVertex];
+CEulerSolver.cpp:      Fz = ActDisk_Fz[val_marker][iVertex];
+CEulerSolver.cpp:        V_outlet = DonorPrimVar[val_marker][iVertex];}
+CEulerSolver.cpp:        V_inlet = DonorPrimVar[val_marker][iVertex];}
+CEulerSolver.cpp:  unsigned long iVertex, iPoint;
+CEulerSolver.cpp:            for (iVertex = 0; iVertex < geometry->GetnVertexSpan(iMarker,iSpan); iVertex++) {
+CEulerSolver.cpp:              iPoint = geometry->turbovertex[iMarker][iSpan][iVertex]->GetNode();
+CEulerSolver.cpp:                geometry->turbovertex[iMarker][iSpan][iVertex]->GetNormal(UnitNormal);
+CEulerSolver.cpp:                geometry->turbovertex[iMarker][iSpan][iVertex]->GetTurboNormal(TurboNormal);
+CEulerSolver.cpp:                Area = geometry->turbovertex[iMarker][iSpan][iVertex]->GetArea();
+CEulerSolver.cpp:  unsigned long iVertex, iPoint, nVert;
+CEulerSolver.cpp:              for (iVertex = 0; iVertex < geometry->GetnVertexSpan(iMarker,iSpan); iVertex++) {
+CEulerSolver.cpp:                iPoint = geometry->turbovertex[iMarker][iSpan][iVertex]->GetNode();
+CEulerSolver.cpp:                geometry->turbovertex[iMarker][iSpan][iVertex]->GetNormal(UnitNormal);
+CEulerSolver.cpp:                geometry->turbovertex[iMarker][iSpan][iVertex]->GetTurboNormal(TurboNormal);
+CEulerSolver.cpp:                Area = geometry->turbovertex[iMarker][iSpan][iVertex]->GetArea();
+CEulerSolver.cpp:                for (iVertex = 0; iVertex < geometry->GetnVertexSpan(iMarker,jSpan); iVertex++) {
+CEulerSolver.cpp:                  iPoint = geometry->turbovertex[iMarker][jSpan][iVertex]->GetNode();
+CEulerSolver.cpp:                  geometry->turbovertex[iMarker][jSpan][iVertex]->GetNormal(UnitNormal);
+CEulerSolver.cpp:                  geometry->turbovertex[iMarker][jSpan][iVertex]->GetTurboNormal(TurboNormal);
+CEulerSolver.cpp:                  Area = geometry->turbovertex[iMarker][jSpan][iVertex]->GetArea();
+CFEASolver.cpp:      long iVertex = geometry->nodes->GetVertex(iPoint, iMarker);
+CFEASolver.cpp:      if (iVertex >= 0) {
+CFEASolver.cpp:    for (auto iVertex = 0ul; iVertex < geometry->nVertex[iMarker]; iVertex++) {
+CFEASolver.cpp:      auto iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+CFEASolver.cpp:    unsigned long iPoint, iVertex;
+CFEASolver.cpp:            for (iVertex = 0; iVertex < geometry->nVertex[iMarker]; iVertex++) {
+CFEASolver.cpp:              iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+CFEASolver.cpp:                for (iVertex = 0; iVertex < geometry->nVertex[iMarker]; iVertex++) {
+CFEASolver.cpp:                  iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+CFEASolver.cpp:  for (auto iVertex = 0ul; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CFEASolver.cpp:    auto iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CFEASolver.cpp:  for (auto iVertex = 0ul; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CFEASolver.cpp:    auto iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CFEASolver.cpp:  for (auto iVertex = 0ul; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CFEASolver.cpp:    const auto iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CFEASolver.cpp:  for (auto iVertex = 0ul; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CFEASolver.cpp:    auto iNode = geometry->vertex[val_marker][iVertex]->GetNode();
+CFEASolver.cpp:        for (unsigned long iVertex = 0; iVertex < geometry->GetnVertex(iMarker); ++iVertex) {
+CFEASolver.cpp:          auto iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+CHeatSolver.cpp:        for(auto iVertex = 0ul; iVertex < geometry->nVertex[iMarker]; iVertex++ ) {
+CHeatSolver.cpp:          const auto iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+CHeatSolver.cpp:          Normal = geometry->vertex[iMarker][iVertex]->GetNormal();
+CHeatSolver.cpp:  for (auto iVertex = 0ul; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CHeatSolver.cpp:    iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CHeatSolver.cpp:        Point_Normal = geometry->vertex[val_marker][iVertex]->GetNormal_Neighbor();
+CHeatSolver.cpp:        Normal = geometry->vertex[val_marker][iVertex]->GetNormal();
+CHeatSolver.cpp:  for (auto iVertex = 0ul; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CHeatSolver.cpp:    const auto iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CHeatSolver.cpp:      Normal = geometry->vertex[val_marker][iVertex]->GetNormal();
+CHeatSolver.cpp:  unsigned long iVertex, iPoint, Point_Normal;
+CHeatSolver.cpp:  for (iVertex = 0; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CHeatSolver.cpp:    iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CHeatSolver.cpp:      geometry->vertex[val_marker][iVertex]->GetNormal(Normal);
+CHeatSolver.cpp:        V_inlet = solver_container[FLOW_SOL]->GetCharacPrimVar(val_marker, iVertex);
+CHeatSolver.cpp:        Point_Normal = geometry->vertex[val_marker][iVertex]->GetNormal_Neighbor();
+CHeatSolver.cpp:        geometry->vertex[val_marker][iVertex]->GetNormal(Normal);
+CHeatSolver.cpp:  for (auto iVertex = 0ul; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CHeatSolver.cpp:    const auto iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CHeatSolver.cpp:      const auto Point_Normal = geometry->vertex[val_marker][iVertex]->GetNormal_Neighbor();
+CHeatSolver.cpp:      geometry->vertex[val_marker][iVertex]->GetNormal(Normal);
+CHeatSolver.cpp:        V_outlet = solver_container[FLOW_SOL]->GetCharacPrimVar(val_marker, iVertex);
+CHeatSolver.cpp:    for (auto iVertex = 0ul; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CHeatSolver.cpp:      const auto iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CHeatSolver.cpp:        const su2double* Normal = geometry->vertex[val_marker][iVertex]->GetNormal();
+CHeatSolver.cpp:        T_Conjugate = GetConjugateHeatVariable(val_marker, iVertex, 0)/Temperature_Ref;
+CHeatSolver.cpp:    for (auto iVertex = 0ul; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CHeatSolver.cpp:      const auto iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CHeatSolver.cpp:        su2double const* Normal = geometry->vertex[val_marker][iVertex]->GetNormal();
+CHeatSolver.cpp:        thermal_diffusivity = GetConjugateHeatVariable(val_marker, iVertex, 2)/rho_cp_solid;
+CHeatSolver.cpp:          Tnormal_Conjugate = GetConjugateHeatVariable(val_marker, iVertex, 3)/Temperature_Ref;
+CHeatSolver.cpp:          HeatFluxDensity = GetConjugateHeatVariable(val_marker, iVertex, 1)/config->GetHeat_Flux_Ref();
+CHeatSolver.cpp:      for(auto iVertex = 0ul; iVertex < geometry->nVertex[iMarker]; iVertex++ ) {
+CHeatSolver.cpp:        const auto iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+CHeatSolver.cpp:          iPointNormal = geometry->vertex[iMarker][iVertex]->GetNormal_Neighbor();
+CHeatSolver.cpp:          Normal = geometry->vertex[iMarker][iVertex]->GetNormal();
+CHeatSolver.cpp:          HeatFlux[iMarker][iVertex] = thermal_diffusivity*dTdn*config->GetHeat_Flux_Ref();
+CHeatSolver.cpp:          HeatFlux_per_Marker[iMarker] += HeatFlux[iMarker][iVertex]*Area;
+CHeatSolver.cpp:      for(auto iVertex = 0ul; iVertex < geometry->nVertex[iMarker]; iVertex++ ) {
+CHeatSolver.cpp:        const auto iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+CHeatSolver.cpp:          iPointNormal = geometry->vertex[iMarker][iVertex]->GetNormal_Neighbor();
+CHeatSolver.cpp:          Normal = geometry->vertex[iMarker][iVertex]->GetNormal();
+CHeatSolver.cpp:          HeatFlux[iMarker][iVertex] = thermal_diffusivity*dTdn*config->GetHeat_Flux_Ref();
+CHeatSolver.cpp:          HeatFlux_per_Marker[iMarker] += HeatFlux[iMarker][iVertex]*Area;
+CHeatSolver.cpp:    for (auto iVertex = 0ul; iVertex < geometry->GetnVertex(iMarker); iVertex++) {
+CHeatSolver.cpp:      iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+CHeatSolver.cpp:      Normal = geometry->vertex[iMarker][iVertex]->GetNormal();
+CIncEulerSolver.cpp:          for (auto iVertex = 0ul; iVertex < nVertex[iMarker]; iVertex++) {
+CIncEulerSolver.cpp:            iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+CIncEulerSolver.cpp:            second_numerics->SetNormal(geometry->vertex[iMarker][iVertex]->GetNormal());
+CIncEulerSolver.cpp:          }// for iVertex
+CIncEulerSolver.cpp:  unsigned long iVertex, iPoint, Point_Normal;
+CIncEulerSolver.cpp:  for (iVertex = 0; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CIncEulerSolver.cpp:    iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CIncEulerSolver.cpp:    auto V_infty = GetCharacPrimVar(val_marker, iVertex);
+CIncEulerSolver.cpp:    Point_Normal = geometry->vertex[val_marker][iVertex]->GetNormal_Neighbor();
+CIncEulerSolver.cpp:    geometry->vertex[val_marker][iVertex]->GetNormal(Normal);
+CIncEulerSolver.cpp:  unsigned long iVertex, iPoint;
+CIncEulerSolver.cpp:  for (iVertex = 0; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CIncEulerSolver.cpp:    iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CIncEulerSolver.cpp:    V_inlet = GetCharacPrimVar(val_marker, iVertex);
+CIncEulerSolver.cpp:    Point_Normal = geometry->vertex[val_marker][iVertex]->GetNormal_Neighbor();
+CIncEulerSolver.cpp:    geometry->vertex[val_marker][iVertex]->GetNormal(Normal);
+CIncEulerSolver.cpp:    Flow_Dir = Inlet_FlowDir[val_marker][iVertex];
+CIncEulerSolver.cpp:        Vel_Mag  = Inlet_Ptotal[val_marker][iVertex]/config->GetVelocity_Ref();
+CIncEulerSolver.cpp:        V_inlet[nDim+1] = Inlet_Ttotal[val_marker][iVertex]/config->GetTemperature_Ref();
+CIncEulerSolver.cpp:        P_total = Inlet_Ptotal[val_marker][iVertex]/config->GetPressure_Ref();
+CIncEulerSolver.cpp:          V_inlet[0] = Inlet_Ptotal[val_marker][iVertex]/config->GetPressure_Ref();
+CIncEulerSolver.cpp:          V_inlet[nDim+1] = Inlet_Ttotal[val_marker][iVertex]/config->GetTemperature_Ref();
+CIncEulerSolver.cpp:  unsigned long iVertex, iPoint, Point_Normal;
+CIncEulerSolver.cpp:  for (iVertex = 0; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CIncEulerSolver.cpp:    iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CIncEulerSolver.cpp:    V_outlet = GetCharacPrimVar(val_marker, iVertex);
+CIncEulerSolver.cpp:    Point_Normal = geometry->vertex[val_marker][iVertex]->GetNormal_Neighbor();
+CIncEulerSolver.cpp:    geometry->vertex[val_marker][iVertex]->GetNormal(Normal);
+CIncEulerSolver.cpp:  unsigned long iPoint, jPoint, iEdge, iVertex;
+CIncEulerSolver.cpp:        for (iVertex = 0; iVertex < geometry->GetnVertex(iMarker); iVertex++) {
+CIncEulerSolver.cpp:          iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+CIncEulerSolver.cpp:          Normal = geometry->vertex[iMarker][iVertex]->GetNormal();
+CIncEulerSolver.cpp:  unsigned long iVertex, iPoint;
+CIncEulerSolver.cpp:        for (iVertex = 0; iVertex < geometry->nVertex[iMarker]; iVertex++) {
+CIncEulerSolver.cpp:          iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+CIncEulerSolver.cpp:            geometry->vertex[iMarker][iVertex]->GetNormal(Vector);
+CIncNSSolver.cpp:      for (auto iVertex = 0ul; iVertex < geometry->nVertex[iMarker]; iVertex++) {
+CIncNSSolver.cpp:        auto iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+CIncNSSolver.cpp:          const auto AreaNormal = geometry->vertex[iMarker][iVertex]->GetNormal();
+CIncNSSolver.cpp:        for (auto iVertex = 0ul; iVertex < geometry->nVertex[iMarker]; iVertex++) {
+CIncNSSolver.cpp:          auto iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+CIncNSSolver.cpp:          const auto AreaNormal = geometry->vertex[iMarker][iVertex]->GetNormal();
+CIncNSSolver.cpp:  for (auto iVertex = 0ul; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CIncNSSolver.cpp:    const auto iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CIncNSSolver.cpp:    const auto Normal = geometry->vertex[val_marker][iVertex]->GetNormal();
+CIncNSSolver.cpp:      const auto Point_Normal = geometry->vertex[val_marker][iVertex]->GetNormal_Neighbor();
+CIncNSSolver.cpp:  for (auto iVertex = 0ul; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CIncNSSolver.cpp:    auto iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CIncNSSolver.cpp:    su2double Tconjugate = GetConjugateHeatVariable(val_marker, iVertex, 0) / Temperature_Ref;
+CIncNSSolver.cpp:      const auto Point_Normal = geometry->vertex[val_marker][iVertex]->GetNormal_Neighbor();
+CIncNSSolver.cpp:      su2double HF_FactorConjugate = GetConjugateHeatVariable(val_marker, iVertex, 2);
+CIncNSSolver.cpp:    for (auto iVertex = 0u; iVertex < geometry->nVertex[iMarker]; iVertex++) {
+CIncNSSolver.cpp:      const auto iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+CIncNSSolver.cpp:      const auto Point_Normal = geometry->vertex[iMarker][iVertex]->GetNormal_Neighbor();
+CIncNSSolver.cpp:      const auto Normal = geometry->vertex[iMarker][iVertex]->GetNormal();
+CIncNSSolver.cpp:      YPlus[iMarker][iVertex] = Y_Plus;
+CIncNSSolver.cpp:      EddyViscWall[iMarker][iVertex] = Eddy_Visc_Wall;
+CIncNSSolver.cpp:      UTau[iMarker][iVertex] = U_Tau;
+CMeshSolver.cpp:      long iVertex = geometry->nodes->GetVertex(iPoint, iMarker);
+CMeshSolver.cpp:      if (iVertex >= 0) {
+CMeshSolver.cpp:    for (auto iVertex=0u; iVertex<geometry->GetnVertex(iMarker); ++iVertex) {
+CMeshSolver.cpp:      auto iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+CMeshSolver.cpp:  for (auto iVertex = 0ul; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CMeshSolver.cpp:    const auto iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CMeshSolver.cpp:      for (unsigned long iVertex = 0; iVertex < geometry[MESH_0]->nVertex[iMarker]; iVertex++) {
+CMeshSolver.cpp:        auto iNode = geometry[MESH_0]->vertex[iMarker][iVertex]->GetNode();
+CMeshSolver.cpp:  unsigned long iPoint, iVertex;
+CMeshSolver.cpp:      for (iVertex = 0; iVertex < geometry->nVertex[iMarker]; iVertex++) {
+CMeshSolver.cpp:        iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+CMeshSolver.cpp:  unsigned long iPoint, iVertex;
+CMeshSolver.cpp:      for (iVertex = 0; iVertex < geometry->nVertex[iMarker]; iVertex++) {
+CMeshSolver.cpp:        iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+CMeshSolver.cpp:  unsigned long iPoint, iVertex;
+CMeshSolver.cpp:      for (iVertex = 0; iVertex < geometry->nVertex[iMarker]; iVertex++) {
+CMeshSolver.cpp:        iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+CMeshSolver.cpp:  unsigned long iPoint, iVertex;
+CMeshSolver.cpp:      for (iVertex = 0; iVertex < geometry->nVertex[iMarker]; iVertex++) {
+CMeshSolver.cpp:        iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+CNEMOEulerSolver.cpp:  unsigned long iPoint, iVertex;
+CNEMOEulerSolver.cpp:  for (iVertex = 0; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CNEMOEulerSolver.cpp:    iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CNEMOEulerSolver.cpp:      geometry->vertex[val_marker][iVertex]->GetNormal(Normal);
+CNEMOEulerSolver.cpp:  unsigned long iVertex, iPoint, Point_Normal;
+CNEMOEulerSolver.cpp:  for (iVertex = 0; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CNEMOEulerSolver.cpp:    iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CNEMOEulerSolver.cpp:      Point_Normal = geometry->vertex[val_marker][iVertex]->GetNormal_Neighbor(); //only used for implicit
+CNEMOEulerSolver.cpp:      geometry->vertex[val_marker][iVertex]->GetNormal(Normal);
+CNEMOEulerSolver.cpp:  unsigned long iVertex, iPoint;
+CNEMOEulerSolver.cpp:  for (iVertex = 0; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CNEMOEulerSolver.cpp:    iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CNEMOEulerSolver.cpp:      geometry->vertex[val_marker][iVertex]->GetNormal(Normal);
+CNEMOEulerSolver.cpp:  unsigned long iVertex, iPoint;
+CNEMOEulerSolver.cpp:  for (iVertex = 0; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CNEMOEulerSolver.cpp:    iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CNEMOEulerSolver.cpp:      geometry->vertex[val_marker][iVertex]->GetNormal(Normal);
+CNEMOEulerSolver.cpp://  unsigned long iVertex, iPoint, Point_Normal;
+CNEMOEulerSolver.cpp://  for(iVertex = 0; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CNEMOEulerSolver.cpp://    iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CNEMOEulerSolver.cpp://      Point_Normal = geometry->vertex[val_marker][iVertex]->GetNormal_Neighbor();
+CNEMOEulerSolver.cpp://      geometry->vertex[val_marker][iVertex]->GetNormal(Normal);
+CNEMOEulerSolver.cpp:  unsigned long iVertex, iPoint;
+CNEMOEulerSolver.cpp:  for (iVertex = 0; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CNEMOEulerSolver.cpp:    iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CNEMOEulerSolver.cpp:      geometry->vertex[val_marker][iVertex]->GetNormal(Normal);
+CNEMONSSolver.cpp:  for(auto iVertex = 0u; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CNEMONSSolver.cpp:    const auto iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CNEMONSSolver.cpp:    const auto Normal = geometry->vertex[val_marker][iVertex]->GetNormal();
+CNEMONSSolver.cpp:  unsigned long iVertex, iPoint, total_index;
+CNEMONSSolver.cpp:  for(iVertex = 0; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CNEMONSSolver.cpp:    iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CNEMONSSolver.cpp:      Normal = geometry->vertex[val_marker][iVertex]->GetNormal();
+CNEMONSSolver.cpp:  for (auto iVertex = 0u; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CNEMONSSolver.cpp:    const auto iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CNEMONSSolver.cpp:    const auto Normal = geometry->vertex[val_marker][iVertex]->GetNormal();
+CNEMONSSolver.cpp:    const auto Point_Normal = geometry->vertex[val_marker][iVertex]->GetNormal_Neighbor();
+CNEMONSSolver.cpp:  unsigned long iVertex, iPoint, jPoint;
+CNEMONSSolver.cpp:  for(iVertex = 0; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CNEMONSSolver.cpp:    iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CNEMONSSolver.cpp:      jPoint = geometry->vertex[val_marker][iVertex]->GetNormal_Neighbor();
+CNEMONSSolver.cpp:      Normal = geometry->vertex[val_marker][iVertex]->GetNormal();
+CNEMONSSolver.cpp:  for(auto iVertex = 0u; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CNEMONSSolver.cpp:    const auto iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CNEMONSSolver.cpp:    const auto Normal = geometry->vertex[val_marker][iVertex]->GetNormal();
+CNEMONSSolver.cpp:    const auto jPoint = geometry->vertex[val_marker][iVertex]->GetNormal_Neighbor();
+CNSSolver.cpp:  unsigned long iVertex;
+CNSSolver.cpp:      for (iVertex = 0; iVertex < geometry->nVertex[iMarker]; iVertex++) {
+CNSSolver.cpp:        const su2double SkinFrictionMag = GeometryToolbox::Norm(nDim, CSkinFriction[iMarker][iVertex]);
+CNSSolver.cpp:        su2double SkinFrictionDot = GeometryToolbox::DotProduct(nDim, CSkinFriction[iMarker][iVertex], Vel_FS);
+CNSSolver.cpp:        Buffet_Sensor[iMarker][iVertex] = 1./(1. + exp(2.*k*(SkinFrictionDot + lam)));
+CNSSolver.cpp:          auto Normal = geometry->vertex[iMarker][iVertex]->GetNormal();
+CNSSolver.cpp:          Buffet_Metric[iMarker] += Buffet_Sensor[iMarker][iVertex]*Area/Sref;
+CNSSolver.cpp:  for (auto iVertex = 0u; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CNSSolver.cpp:    const auto iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CNSSolver.cpp:      Wall_HeatFlux = geometry->GetCustomBoundaryHeatFlux(val_marker, iVertex);
+CNSSolver.cpp:    const auto Normal = geometry->vertex[val_marker][iVertex]->GetNormal();
+CNSSolver.cpp:      const auto Point_Normal = geometry->vertex[val_marker][iVertex]->GetNormal_Neighbor();
+CNSSolver.cpp:      const auto Point_Normal = geometry->vertex[val_marker][iVertex]->GetNormal_Neighbor();
+CNSSolver.cpp:  for (auto iVertex = 0u; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CNSSolver.cpp:    const auto iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CNSSolver.cpp:      Wall_HeatFlux = geometry->GetCustomBoundaryHeatFlux(val_marker, iVertex);
+CNSSolver.cpp:    const auto Normal = geometry->vertex[val_marker][iVertex]->GetNormal();
+CNSSolver.cpp:      const auto Point_Normal = geometry->vertex[val_marker][iVertex]->GetNormal_Neighbor();
+CNSSolver.cpp:                                           unsigned long iVertex, su2double thermal_conductivity,
+CNSSolver.cpp:  const su2double Tconjugate = GetConjugateHeatVariable(val_marker, iVertex, 0) / Temperature_Ref;
+CNSSolver.cpp:    su2double HF_FactorConjugate = GetConjugateHeatVariable(val_marker, iVertex, 2);
+CNSSolver.cpp:  unsigned long iVertex, iPoint;
+CNSSolver.cpp:  for (iVertex = 0; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CNSSolver.cpp:    su2double xV = geometry->vertex[val_marker][iVertex]->GetCoord(0);
+CNSSolver.cpp:    su2double *yV = geometry->vertex[val_marker][iVertex]->GetCoord();
+CNSSolver.cpp:    cout << "Vertex, " << iVertex << ", " << xV << ", " << yV[1]  << endl;
+CNSSolver.cpp:    V_inlet = GetCharacPrimVar(val_marker, iVertex);
+CNSSolver.cpp:    iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CNSSolver.cpp:    su2double nNodes = geometry->vertex[val_marker][iVertex]->GetnNodes();
+CNSSolver.cpp:      geometry->vertex[val_marker][iVertex]->GetNormal(Normal);
+CNSSolver.cpp:          Density  = config->GetBlowing_Density(Marker_Tag);//Blowing_Density[val_marker][iVertex]; 
+CNSSolver.cpp:          Vel_Mag  = config->GetBlowing_VelocityMag(Marker_Tag);//Blowing_VelocityMag[val_marker][iVertex];
+CNSSolver.cpp:    //   const auto Point_Normal = geometry->vertex[val_marker][iVertex]->GetNormal_Neighbor();
+CNSSolver.cpp:  for (auto iVertex = 0u; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CNSSolver.cpp:    const auto iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CNSSolver.cpp:    const auto Normal = geometry->vertex[val_marker][iVertex]->GetNormal();
+CNSSolver.cpp:    const auto Point_Normal = geometry->vertex[val_marker][iVertex]->GetNormal_Neighbor();
+CNSSolver.cpp:      Twall = GetCHTWallTemperature(config, val_marker, iVertex, dist_ij,
+CNSSolver.cpp:      Twall = geometry->GetCustomBoundaryTemperature(val_marker, iVertex);
+CNSSolver.cpp:    for (auto iVertex = 0u; iVertex < geometry->nVertex[iMarker]; iVertex++) {
+CNSSolver.cpp:      const auto iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+CNSSolver.cpp:      const auto Point_Normal = geometry->vertex[iMarker][iVertex]->GetNormal_Neighbor();
+CNSSolver.cpp:      const auto Normal = geometry->vertex[iMarker][iVertex]->GetNormal();
+CNSSolver.cpp:      YPlus[iMarker][iVertex] = Y_Plus;
+CNSSolver.cpp:      EddyViscWall[iMarker][iVertex] = Eddy_Visc_Wall;
+CNSSolver.cpp:      UTau[iMarker][iVertex] = U_Tau;
+CRadP1Solver.cpp:  unsigned long iVertex, iPoint;
+CRadP1Solver.cpp:  for (iVertex = 0; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CRadP1Solver.cpp:    iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CRadP1Solver.cpp:      Normal = geometry->vertex[val_marker][iVertex]->GetNormal();
+CRadP1Solver.cpp:  unsigned long iVertex, iPoint;
+CRadP1Solver.cpp:  for (iVertex = 0; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CRadP1Solver.cpp:    iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CRadP1Solver.cpp:      Normal = geometry->vertex[val_marker][iVertex]->GetNormal();
+CRadP1Solver.cpp:  unsigned long iVertex, iPoint;
+CRadP1Solver.cpp:  for (iVertex = 0; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CRadP1Solver.cpp:    iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CRadP1Solver.cpp:      Normal = geometry->vertex[val_marker][iVertex]->GetNormal();
+CRadP1Solver.cpp:  unsigned long iEdge, iVertex, iPoint = 0, jPoint = 0;
+CRadP1Solver.cpp:    for (iVertex = 0; iVertex < geometry->GetnVertex(iMarker); iVertex++) {
+CRadP1Solver.cpp:      iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+CRadP1Solver.cpp:      Normal = geometry->vertex[iMarker][iVertex]->GetNormal();
+CSolver.cpp:      for (auto iVertex = 0u; iVertex < geometry->GetnVertex(iMarker); iVertex++) {
+CSolver.cpp:        const auto iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+CSolver.cpp:        const su2double* Normal = geometry->vertex[iMarker][iVertex]->GetNormal();
+CSolver.cpp:      for (auto iVertex = 0ul; iVertex < geometry[MESH_0]->nVertex[iMarker]; iVertex++) {
+CSolver.cpp:        const auto iPoint = geometry[MESH_0]->vertex[iMarker][iVertex]->GetNode();
+CSolver.cpp:            solver[MESH_0][KIND_SOLVER]->SetInletAtVertex(Inlet_Values.data(), iMarker, iVertex);
+CSolver.cpp:          solver[MESH_0][KIND_SOLVER]->SetInletAtVertex(Inlet_Values.data(), iMarker, iVertex);
+CSolver.cpp:            Inlet_Data_Interpolated[iVertex*(nCol_InletFile+nDim)+iVar] = Inlet_Values[iVar];
+CSolver.cpp:      } // end iVertex loop
+CSolver.cpp:        for (auto iVertex = 0ul; iVertex < geometry[iMesh]->nVertex[iMarker]; iVertex++) {
+CSolver.cpp:          const auto iPoint = geometry[iMesh]->vertex[iMarker][iVertex]->GetNode();
+CSolver.cpp:          const auto Normal = geometry[iMesh]->vertex[iMarker][iVertex]->GetNormal();
+CSolver.cpp:          solver[iMesh][KIND_SOLVER]->SetInletAtVertex(Inlet_Values.data(), iMarker, iVertex);
+CSolver.cpp:  unsigned long iVertex, iPoint;
+CSolver.cpp:    for (iVertex = 0; iVertex < geometry->nVertex[iMarker]; iVertex++) {
+CSolver.cpp:      iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+CSolver.cpp:      iNormal = geometry->vertex[iMarker][iVertex]->GetNormal();
+CSolver.cpp:          VertexTraction[iMarker][iVertex][iDim] = factor * auxForce[iDim];
+CSolver.cpp:          VertexTraction[iMarker][iVertex][iDim] = 0.0;
+CSolver.cpp:  unsigned long iVertex, iPoint;
+CSolver.cpp:    for (iVertex = 0; iVertex < geometry->nVertex[iMarker]; iVertex++) {
+CSolver.cpp:      iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+CSolver.cpp:        AD::RegisterOutput(VertexTraction[iMarker][iVertex][iDim]);
+CSolver.cpp:  unsigned long iVertex, iPoint;
+CSolver.cpp:    for (iVertex = 0; iVertex < geometry->nVertex[iMarker]; iVertex++) {
+CSolver.cpp:      iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+CSolver.cpp:        SU2_TYPE::SetDerivative(VertexTraction[iMarker][iVertex][iDim],
+CSolver.cpp:                                SU2_TYPE::GetValue(VertexTractionAdjoint[iMarker][iVertex][iDim]));
+CTransLMSolver.cpp:  unsigned long iPoint, iVertex;
+CTransLMSolver.cpp:  for (iVertex = 0; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CTransLMSolver.cpp:    iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CTransLMSolver.cpp:      geometry->vertex[val_marker][iVertex]->GetNormal(Normal);
+CTransLMSolver.cpp://  for (iVertex = 0; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CTransLMSolver.cpp://    iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CTransLMSolver.cpp:  unsigned long iPoint, iVertex;
+CTransLMSolver.cpp:  for (iVertex = 0; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CTransLMSolver.cpp:    iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CTurbSASolver.cpp:  for (auto iVertex = 0u; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CTurbSASolver.cpp:    const auto iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CTurbSASolver.cpp:           Normal[iDim] = -geometry->vertex[val_marker][iVertex]->GetNormal(iDim);
+CTurbSASolver.cpp:  for (auto iVertex = 0u; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CTurbSASolver.cpp:    const auto iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CTurbSASolver.cpp:      auto V_infty = solver_container[FLOW_SOL]->GetCharacPrimVar(val_marker, iVertex);
+CTurbSASolver.cpp:        Normal[iDim] = -geometry->vertex[val_marker][iVertex]->GetNormal(iDim);
+CTurbSASolver.cpp:  for (auto iVertex = 0u; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CTurbSASolver.cpp:    const auto iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CTurbSASolver.cpp:        Normal[iDim] = -geometry->vertex[val_marker][iVertex]->GetNormal(iDim);
+CTurbSASolver.cpp:      auto V_inlet = solver_container[FLOW_SOL]->GetCharacPrimVar(val_marker, iVertex);
+CTurbSASolver.cpp:      conv_numerics->SetScalarVar(nodes->GetSolution(iPoint), Inlet_TurbVars[val_marker][iVertex]);
+CTurbSASolver.cpp:  for (auto iVertex = 0u; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CTurbSASolver.cpp:    const auto iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CTurbSASolver.cpp:      auto V_outlet = solver_container[FLOW_SOL]->GetCharacPrimVar(val_marker, iVertex);
+CTurbSASolver.cpp:        Normal[iDim] = -geometry->vertex[val_marker][iVertex]->GetNormal(iDim);
+CTurbSASolver.cpp:  for (auto iVertex = 0u; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CTurbSASolver.cpp:    const auto iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CTurbSASolver.cpp:      auto V_inflow = solver_container[FLOW_SOL]->GetCharacPrimVar(val_marker, iVertex);
+CTurbSASolver.cpp:        Normal[iDim] = -geometry->vertex[val_marker][iVertex]->GetNormal(iDim);
+CTurbSASolver.cpp:  for (auto iVertex = 0u; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CTurbSASolver.cpp:    const auto iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CTurbSASolver.cpp:        Normal[iDim] = -geometry->vertex[val_marker][iVertex]->GetNormal(iDim);
+CTurbSASolver.cpp:      auto V_exhaust = solver_container[FLOW_SOL]->GetCharacPrimVar(val_marker, iVertex);
+CTurbSASolver.cpp:  for (auto iVertex = 0u; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CTurbSASolver.cpp:    const auto iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CTurbSASolver.cpp:    const auto GlobalIndex_donor = solver_container[FLOW_SOL]->GetDonorGlobalIndex(val_marker, iVertex);
+CTurbSASolver.cpp:      Normal[iDim] = -geometry->vertex[val_marker][iVertex]->GetNormal(iDim);
+CTurbSASolver.cpp:      auto V_inlet = solver_container[FLOW_SOL]->GetCharacPrimVar(val_marker, iVertex);
+CTurbSASolver.cpp:      auto V_outlet = solver_container[FLOW_SOL]->GetCharacPrimVar(val_marker, iVertex);
+CTurbSASolver.cpp:    for (auto iVertex = 0u; iVertex < geometry->GetnVertexSpan(val_marker,iSpan); iVertex++) {
+CTurbSASolver.cpp:      const auto iPoint = geometry->turbovertex[val_marker][iSpan][iVertex]->GetNode();
+CTurbSASolver.cpp:      const auto oldVertex = geometry->turbovertex[val_marker][iSpan][iVertex]->GetOldVertex();
+CTurbSASolver.cpp:    for (auto iVertex = 0u; iVertex < geometry->GetnVertexSpan(val_marker,iSpan); iVertex++) {
+CTurbSASolver.cpp:      const auto iPoint = geometry->turbovertex[val_marker][iSpan][iVertex]->GetNode();
+CTurbSASolver.cpp:      const auto oldVertex = geometry->turbovertex[val_marker][iSpan][iVertex]->GetOldVertex();
+CTurbSASolver.cpp:  for (auto iVertex = 0u; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CTurbSASolver.cpp:    const auto iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CTurbSASolver.cpp:    const auto iPoint_Neighbor = geometry->vertex[val_marker][iVertex]->GetNormal_Neighbor();
+CTurbSASolver.cpp:      su2double Y_Plus = solver_container[FLOW_SOL]->GetYPlus(val_marker, iVertex);
+CTurbSASolver.cpp:      su2double Eddy_Visc = solver_container[FLOW_SOL]->GetEddyViscWall(val_marker, iVertex);
+CTurbSASolver.cpp:                                    unsigned long iVertex) {
+CTurbSASolver.cpp:  Inlet_TurbVars[iMarker][iVertex][0] = val_inlet[nDim+2+nDim];
+CTurbSASolver.cpp:  unsigned long iPoint, iVertex;
+CTurbSASolver.cpp:        for (iVertex = 0; iVertex < nVertex[iMarker]; iVertex++){
+CTurbSASolver.cpp:          iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+CTurbSASolver.cpp:            geometry->vertex[iMarker][iVertex]->GetNormal(Normal);
+CTurbSASolver.cpp:            val_inlet[position] = Inlet_TurbVars[iMarker][iVertex][0];
+CTurbSASolver.cpp:  for(unsigned long iVertex=0; iVertex < nVertex[iMarker]; iVertex++){
+CTurbSASolver.cpp:    Inlet_TurbVars[iMarker][iVertex][0] = GetNuTilde_Inf();
+CTurbSSTSolver.cpp:    for (unsigned long iVertex = 0; iVertex < nVertex[iMarker]; ++iVertex) {
+CTurbSSTSolver.cpp:      Inlet_TurbVars[iMarker](iVertex,0) = kine_Inf;
+CTurbSSTSolver.cpp:      Inlet_TurbVars[iMarker](iVertex,1) = omega_Inf;
+CTurbSSTSolver.cpp:  for (auto iVertex = 0u; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CTurbSSTSolver.cpp:    const auto iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CTurbSSTSolver.cpp:        su2double WallShearStress = solver_container[FLOW_SOL]->GetWallShearStress(val_marker, iVertex);
+CTurbSSTSolver.cpp:        const auto jPoint = geometry->vertex[val_marker][iVertex]->GetNormal_Neighbor();
+CTurbSSTSolver.cpp:  for (auto iVertex = 0u; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CTurbSSTSolver.cpp:    const auto iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CTurbSSTSolver.cpp:    const auto iPoint_Neighbor = geometry->vertex[val_marker][iVertex]->GetNormal_Neighbor();
+CTurbSSTSolver.cpp:    su2double Y_Plus = solver_container[FLOW_SOL]->GetYPlus(val_marker, iVertex);
+CTurbSSTSolver.cpp:    su2double Eddy_Visc = solver_container[FLOW_SOL]->GetEddyViscWall(val_marker, iVertex);
+CTurbSSTSolver.cpp:    su2double U_Tau = solver_container[FLOW_SOL]->GetUTau(val_marker, iVertex);
+CTurbSSTSolver.cpp:  for (auto iVertex = 0u; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CTurbSSTSolver.cpp:    const auto iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CTurbSSTSolver.cpp:      auto V_infty = solver_container[FLOW_SOL]->GetCharacPrimVar(val_marker, iVertex);
+CTurbSSTSolver.cpp:        Normal[iDim] = -geometry->vertex[val_marker][iVertex]->GetNormal(iDim);
+CTurbSSTSolver.cpp:  for (auto iVertex = 0u; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CTurbSSTSolver.cpp:    const auto iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CTurbSSTSolver.cpp:        Normal[iDim] = -geometry->vertex[val_marker][iVertex]->GetNormal(iDim);
+CTurbSSTSolver.cpp:      auto V_inlet = solver_container[FLOW_SOL]->GetCharacPrimVar(val_marker, iVertex);
+CTurbSSTSolver.cpp:                                Inlet_TurbVars[val_marker][iVertex]);
+CTurbSSTSolver.cpp:  for (auto iVertex = 0u; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+CTurbSSTSolver.cpp:    const auto iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+CTurbSSTSolver.cpp:      auto V_outlet = solver_container[FLOW_SOL]->GetCharacPrimVar(val_marker, iVertex);
+CTurbSSTSolver.cpp:        Normal[iDim] = -geometry->vertex[val_marker][iVertex]->GetNormal(iDim);
+CTurbSSTSolver.cpp:    for (auto iVertex = 0u; iVertex < geometry->GetnVertexSpan(val_marker,iSpan); iVertex++) {
+CTurbSSTSolver.cpp:      const auto iPoint = geometry->turbovertex[val_marker][iSpan][iVertex]->GetNode();
+CTurbSSTSolver.cpp:      const auto oldVertex = geometry->turbovertex[val_marker][iSpan][iVertex]->GetOldVertex();
+CTurbSSTSolver.cpp:    for (auto iVertex = 0u; iVertex < geometry->GetnVertexSpan(val_marker,iSpan); iVertex++) {
+CTurbSSTSolver.cpp:      const auto iPoint = geometry->turbovertex[val_marker][iSpan][iVertex]->GetNode();
+CTurbSSTSolver.cpp:      const auto oldVertex = geometry->turbovertex[val_marker][iSpan][iVertex]->GetOldVertex();
+CTurbSSTSolver.cpp:                                     unsigned long iVertex) {
+CTurbSSTSolver.cpp:  Inlet_TurbVars[iMarker][iVertex][0] = val_inlet[nDim+2+nDim];
+CTurbSSTSolver.cpp:  Inlet_TurbVars[iMarker][iVertex][1] = val_inlet[nDim+2+nDim+1];
+CTurbSSTSolver.cpp:  unsigned long iPoint, iVertex;
+CTurbSSTSolver.cpp:        for (iVertex = 0; iVertex < nVertex[iMarker]; iVertex++){
+CTurbSSTSolver.cpp:          iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+CTurbSSTSolver.cpp:            geometry->vertex[iMarker][iVertex]->GetNormal(Normal);
+CTurbSSTSolver.cpp:            val_inlet[tke_position]   = Inlet_TurbVars[iMarker][iVertex][0];
+CTurbSSTSolver.cpp:            val_inlet[omega_position] = Inlet_TurbVars[iMarker][iVertex][1];
+CTurbSSTSolver.cpp:  for(unsigned long iVertex=0; iVertex < nVertex[iMarker]; iVertex++){
+CTurbSSTSolver.cpp:    Inlet_TurbVars[iMarker][iVertex][0] = GetTke_Inf();
+CTurbSSTSolver.cpp:    Inlet_TurbVars[iMarker][iVertex][1] = GetOmega_Inf();
+CTurbSolver.cpp:    for (auto iVertex = 0u; iVertex < geometry->nVertex[iMarker]; iVertex++) {
+CTurbSolver.cpp:      const auto iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+CTurbSolver.cpp:      const auto Point_Normal = geometry->vertex[iMarker][iVertex]->GetNormal_Neighbor();
+CTurbSolver.cpp:      const auto nDonorVertex = GetnSlidingStates(iMarker,iVertex);
+CTurbSolver.cpp:        Normal[iDim] = -geometry->vertex[iMarker][iVertex]->GetNormal()[iDim];
+CTurbSolver.cpp:          PrimVar_j[iVar] = solver_container[FLOW_SOL]->GetSlidingState(iMarker, iVertex, iVar, jVertex);
+CTurbSolver.cpp:        const su2double weight = solver_container[FLOW_SOL]->GetSlidingState(iMarker, iVertex, nPrimVar, jVertex);
+CTurbSolver.cpp:          solution_j[iVar] = GetSlidingState(iMarker, iVertex, iVar, jVertex);
+Übereinstimmungen in Binärdatei .CNSSolver.cpp.swp

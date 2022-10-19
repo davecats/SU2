@@ -928,3 +928,213 @@ void CSourcePieceWise_TurbSST::SetPerturbedStrainMag(su2double turb_ke){
   PerturbedStrainMag = sqrt(2.0*PerturbedStrainMag);
 
 }
+
+// >>>
+
+CSourcePieceWise_TurbSST_new::CSourcePieceWise_TurbSST_new(unsigned short val_nDim,
+                                                   unsigned short val_nVar,
+                                                   const su2double *constants,
+                                                   su2double val_kine_Inf,
+                                                   su2double val_omega_Inf,
+                                                   const CConfig* config, su2double Coord_Pos_x, su2double Coord_Pos_y) :
+                          CNumerics(val_nDim, val_nVar, config) {
+
+  incompressible = (config->GetKind_Regime() == ENUM_REGIME::INCOMPRESSIBLE);
+  sustaining_terms = (config->GetKind_Turb_Model() == TURB_MODEL::SST_SUST);
+  axisymmetric = config->GetAxisymmetric();
+
+  /*--- Closure constants ---*/
+  sigma_k_1     = constants[0];
+  sigma_k_2     = constants[1];
+  sigma_w_1     = constants[2];
+  sigma_w_2     = constants[3];
+  beta_1        = constants[4];
+  beta_2        = constants[5];
+  beta_star     = constants[6];
+  a1            = constants[7];
+  alfa_1        = constants[8];
+  alfa_2        = constants[9];
+
+  /*--- Set the ambient values of k and omega to the free stream values. ---*/
+  kAmb     = val_kine_Inf;
+  omegaAmb = val_omega_Inf;
+
+  /*--- "Allocate" the Jacobian using the static buffer. ---*/
+  Jacobian_i[0] = Jacobian_Buffer;
+  Jacobian_i[1] = Jacobian_Buffer+2;
+
+}
+
+CNumerics::ResidualType<> CSourcePieceWise_TurbSST_new::ComputeResidual(const CConfig* config, su2double Coord_Pos_x, su2double Coord_Pos_y ) {
+
+  AD::StartPreacc();
+  AD::SetPreaccIn(StrainMag_i);
+  AD::SetPreaccIn(ScalarVar_i, nVar);
+  AD::SetPreaccIn(ScalarVar_Grad_i, nVar, nDim);
+  AD::SetPreaccIn(Volume); AD::SetPreaccIn(dist_i);
+  AD::SetPreaccIn(F1_i); AD::SetPreaccIn(F2_i); AD::SetPreaccIn(CDkw_i);
+  AD::SetPreaccIn(PrimVar_Grad_i, nDim+1, nDim);
+  AD::SetPreaccIn(Vorticity_i, 3);
+
+  unsigned short iDim;
+  su2double alfa_blended, beta_blended;
+  su2double diverg, pk, pw, zeta;
+  su2double VorticityMag = sqrt(Vorticity_i[0]*Vorticity_i[0] +
+                                Vorticity_i[1]*Vorticity_i[1] +
+                                Vorticity_i[2]*Vorticity_i[2]);
+
+  if (incompressible) {
+    AD::SetPreaccIn(V_i, nDim+6);
+
+    Density_i = V_i[nDim+2];
+    Laminar_Viscosity_i = V_i[nDim+4];
+    Eddy_Viscosity_i = V_i[nDim+5];
+  }
+  else {
+    AD::SetPreaccIn(V_i, nDim+7);
+
+    Density_i = V_i[nDim+2];
+    Laminar_Viscosity_i = V_i[nDim+5];
+    Eddy_Viscosity_i = V_i[nDim+6];
+  }
+
+  Residual[0] = 0.0;       Residual[1] = 0.0;
+  Jacobian_i[0][0] = 0.0;  Jacobian_i[0][1] = 0.0;
+  Jacobian_i[1][0] = 0.0;  Jacobian_i[1][1] = 0.0;
+
+  su2double Temperature_inf = config->GetTemperature_FreeStream();
+  su2double Mach_inf = config->GetMach();
+  su2double Gamma_inf = config->GetGamma();
+  su2double R_inf = config->GetGas_Constant();
+
+  if(config->GetKind_Trans_Model() == TS){
+
+    su2double trans_pos_x = config->GetTransTS_Param(0);
+    su2double BL_thickness_SS = config->GetTransTS_Param(1);
+    su2double BL_thickness_PS = config->GetTransTS_Param(2);
+    su2double factor_residual = config->GetTransTS_Param(3);
+
+    if ((Coord_Pos_x > trans_pos_x && Coord_Pos_x < (trans_pos_x+0.01)) && (Coord_Pos_y > 0) && (dist_i>BL_thickness_SS && dist_i<(2*BL_thickness_SS))){  
+      //cout << "X: " << Coord_Pos_x << ", Y: " << Coord_Pos_y << endl;   
+      su2double U_inf = Mach_inf * sqrt(Gamma_inf * R_inf * Temperature_inf);
+      Residual[0] =+ factor_residual * U_inf*U_inf*U_inf * Volume; 
+      //Residual[0] =+ 2e-5 * U_inf*U_inf*U_inf; 
+      //cout << "Residual: " << Residual[0] << endl;
+    } 
+    else if ((Coord_Pos_x > trans_pos_x && Coord_Pos_x < (trans_pos_x+0.01)) && (Coord_Pos_y < 0) && (dist_i>BL_thickness_PS && dist_i<(2*BL_thickness_PS))) {
+      su2double U_inf = Mach_inf * sqrt(Gamma_inf * R_inf * Temperature_inf);
+      Residual[0] =+ factor_residual * U_inf*U_inf*U_inf * Volume; 
+    } 
+  } 
+  
+
+  /*--- Computation of blended constants for the source terms---*/
+
+  alfa_blended = F1_i*alfa_1 + (1.0 - F1_i)*alfa_2;
+  beta_blended = F1_i*beta_1 + (1.0 - F1_i)*beta_2;
+
+  if (dist_i > 1e-10) {
+
+   /*--- Production ---*/
+
+   diverg = 0.0;
+   for (iDim = 0; iDim < nDim; iDim++)
+     diverg += PrimVar_Grad_i[iDim+1][iDim];
+
+
+   /* if using UQ methodolgy, calculate production using perturbed Reynolds stress matrix */
+
+   if (using_uq){
+     ComputePerturbedRSM(nDim, Eig_Val_Comp, uq_permute, uq_delta_b, uq_urlx,
+                         PrimVar_Grad_i+1, Density_i, Eddy_Viscosity_i,
+                         ScalarVar_i[0], MeanPerturbedRSM);
+     SetPerturbedStrainMag(ScalarVar_i[0]);
+     pk = Eddy_Viscosity_i*PerturbedStrainMag*PerturbedStrainMag
+          - 2.0/3.0*Density_i*ScalarVar_i[0]*diverg;
+   }
+   else {
+     pk = Eddy_Viscosity_i*StrainMag_i*StrainMag_i - 2.0/3.0*Density_i*ScalarVar_i[0]*diverg;
+   }
+
+   pk = min(pk,20.0*beta_star*Density_i*ScalarVar_i[1]*ScalarVar_i[0]);
+   pk = max(pk,0.0);
+
+   zeta = max(ScalarVar_i[1], VorticityMag*F2_i/a1);
+
+   /* if using UQ methodolgy, calculate production using perturbed Reynolds stress matrix */
+
+   if (using_uq){
+     pw = PerturbedStrainMag * PerturbedStrainMag - 2.0/3.0*zeta*diverg;
+   }
+   else {
+     pw = StrainMag_i*StrainMag_i - 2.0/3.0*zeta*diverg;
+   }
+   pw = alfa_blended*Density_i*max(pw,0.0);
+
+   /*--- Sustaining terms, if desired. Note that if the production terms are
+         larger equal than the sustaining terms, the original formulation is
+         obtained again. This is in contrast to the version in literature
+         where the sustaining terms are simply added. This latter approach could
+         lead to problems for very big values of the free-stream turbulence
+         intensity. ---*/
+
+   if ( sustaining_terms ) {
+     const su2double sust_k = beta_star*Density_i*kAmb*omegaAmb;
+     const su2double sust_w = beta_blended*Density_i*omegaAmb*omegaAmb;
+
+     pk = max(pk, sust_k);
+     pw = max(pw, sust_w);
+   }
+
+   /*--- Add the production terms to the residuals. ---*/
+
+   Residual[0] += pk*Volume;
+   Residual[1] += pw*Volume;
+
+   /*--- Dissipation ---*/
+
+   Residual[0] -= beta_star*Density_i*ScalarVar_i[1]*ScalarVar_i[0]*Volume;
+   Residual[1] -= beta_blended*Density_i*ScalarVar_i[1]*ScalarVar_i[1]*Volume; 
+
+   /*--- Cross diffusion ---*/
+
+   Residual[1] += (1.0 - F1_i)*CDkw_i*Volume;
+
+   /*--- Contribution due to 2D axisymmetric formulation ---*/
+
+   if (axisymmetric) ResidualAxisymmetric(alfa_blended,zeta);
+
+   /*--- Implicit part ---*/
+
+   Jacobian_i[0][0] = -beta_star*ScalarVar_i[1]*Volume;
+   Jacobian_i[0][1] = -beta_star*ScalarVar_i[0]*Volume;
+   Jacobian_i[1][0] = 0.0;
+   Jacobian_i[1][1] = -2.0*beta_blended*ScalarVar_i[1]*Volume;
+  }
+
+  AD::SetPreaccOut(Residual, nVar);
+  AD::EndPreacc();
+
+  return ResidualType<>(Residual, Jacobian_i, nullptr);
+
+}
+
+void CSourcePieceWise_TurbSST_new::SetPerturbedStrainMag(su2double turb_ke){
+
+  /*--- Compute norm of perturbed strain rate tensor. ---*/
+
+  PerturbedStrainMag = 0;
+  for (unsigned short iDim = 0; iDim < nDim; iDim++){
+    for (unsigned short jDim = 0; jDim < nDim; jDim++){
+      su2double StrainRate_ij = MeanPerturbedRSM[iDim][jDim] - TWO3 * turb_ke * delta[iDim][jDim];
+      StrainRate_ij = - StrainRate_ij * Density_i / (2 * Eddy_Viscosity_i);
+
+      PerturbedStrainMag += pow(StrainRate_ij, 2.0);
+    }
+  }
+  PerturbedStrainMag = sqrt(2.0*PerturbedStrainMag);
+
+}
+//<<<
+
+

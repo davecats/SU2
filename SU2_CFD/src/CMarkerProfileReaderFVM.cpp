@@ -57,6 +57,8 @@ CMarkerProfileReaderFVM::CMarkerProfileReaderFVM(CGeometry      *val_geometry,
   /* If the file is not found, then we merge the information necessary
    and write a template marker profile file. Otherwise, we read and
    store the information in the marker profile file. */
+    
+  
 
   if (profile_file.fail()) {
     MergeProfileMarkers();
@@ -445,7 +447,7 @@ void CMarkerProfileReaderFVM::WriteMarkerProfileTemplate() {
    in the MergeProfileMarkers() routine and only the master writes. ---*/
 
   if (rank == MASTER_NODE) {
-
+    cout << "Yes!" << endl;
     ofstream node_file("example_"+filename);
 
     node_file << "NMARK= " << numberOfProfiles << endl;

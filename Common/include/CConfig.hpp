@@ -727,6 +727,7 @@ private:
   unsigned short ActDisk_Jump;        /*!< \brief Format of the output files. */
   unsigned long StartWindowIteration; /*!< \brief Starting Iteration for long time Windowing apporach . */
   unsigned short nCFL_AdaptParam;     /*!< \brief Number of CFL parameters provided in config. */
+  unsigned short nTransTS_Param;     /*!< \brief Number of transition model (TS) parameters provided in config. */
   bool CFL_Adapt;        /*!< \brief Use adaptive CFL number. */
   bool HB_Precondition;  /*!< \brief Flag to turn on harmonic balance source term preconditioning */
   su2double RefArea,     /*!< \brief Reference area for coefficient computation. */
@@ -737,6 +738,7 @@ private:
   *RefOriginMoment_Y,    /*!< \brief Y Origin for moment computation. */
   *RefOriginMoment_Z,    /*!< \brief Z Origin for moment computation. */
   *CFL_AdaptParam,       /*!< \brief Information about the CFL ramp. */
+  *TransTS_Param,        /*!< \brief Information about the transtion model ramp. */
   *RelaxFactor_Giles,    /*!< \brief Information about the under relaxation factor for Giles BC. */
   *CFL,                  /*!< \brief CFL number. */
   DomainVolume;          /*!< \brief Volume of the computational grid. */
@@ -1043,6 +1045,7 @@ private:
   su2double CFL_Rad;                   /*!< \brief CFL Number for the radiation solver. */
 
   array<su2double,5> default_cfl_adapt;  /*!< \brief Default CFL adapt param array for the COption class. */
+  array<su2double,4> default_transition_ts;  /*!< \brief Default transition (TS). */
   su2double vel_init[3], /*!< \brief initial velocity array for the COption class. */
   vel_inf[3],            /*!< \brief freestream velocity array for the COption class. */
   eng_cyl[7],            /*!< \brief engine box array for the COption class. */
@@ -1522,6 +1525,12 @@ public:
    * \return Value of CFL adaption parameter
    */
   su2double GetCFL_AdaptParam(unsigned short val_index) const { return CFL_AdaptParam[val_index]; }
+
+    /*!
+   * \brief Get the values of the transition model (TS).
+   * \return Value of transition model (TS)
+   */
+  su2double GetTransTS_Param(unsigned short val_index) const { return TransTS_Param[val_index]; }
 
   /*!
    * \brief Get the value of the CFL adaption flag.
