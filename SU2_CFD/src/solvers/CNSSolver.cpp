@@ -793,7 +793,7 @@ void CNSSolver::BC_Isothermal_Wall_Generic_Blowing(CGeometry* geometry, CSolver*
       su2double* Velocity_Inf = config->GetVelocity_FreeStreamND();
       const su2double Vel_Infty_Mag = GeometryToolbox::Norm(nDim, Velocity_Inf);
 
-      if (Kind_Inlet == VELOCITY_BLOW){
+      if (Kind_Inlet == VELOCITY_BLOW || Kind_Inlet == MASS_FLOW){
         Density = nodes->GetDensity(iPoint);
         Vel_Mag *= Vel_Infty_Mag;
       } 
@@ -808,7 +808,7 @@ void CNSSolver::BC_Isothermal_Wall_Generic_Blowing(CGeometry* geometry, CSolver*
     
       
       if (config->GetInlet_Profile_From_File()) {
-        if (Kind_Inlet == VELOCITY_BLOW){
+        if (Kind_Inlet == VELOCITY_BLOW || Kind_Inlet == MASS_FLOW){
           //Density = Inlet_Ttotal[val_marker][iVertex];
           Density = nodes->GetDensity(iPoint);
           Vel_Mag = Inlet_Ptotal[val_marker][iVertex];
@@ -898,22 +898,22 @@ void CNSSolver::BC_Isothermal_Wall_Generic_Blowing(CGeometry* geometry, CSolver*
       /*--- Compute the residual using an upwind scheme ---*/
 
       auto residual = conv_numerics->ComputeResidual(config);
-      auto v_residual = visc_numerics->ComputeResidual(config);
+      //auto v_residual = visc_numerics->ComputeResidual(config);
 
       /*--- Update residual value ---*/
 
       LinSysRes.AddBlock(iPoint, residual);
-      if (Density == -99) {
-        LinSysRes.AddBlock(iPoint, v_residual);
-      }
+      //if (Density == -99) {
+      //  LinSysRes.AddBlock(iPoint, v_residual);
+      //}
 
       /*--- Jacobian contribution for implicit integration ---*/
 
       if (implicit) {
         Jacobian.AddBlock2Diag(iPoint, residual.jacobian_i);
-        if (Density == -99) {
-          Jacobian.AddBlock2Diag(iPoint, v_residual.jacobian_i);
-        }
+      //  if (Density == -99) {
+      //    Jacobian.AddBlock2Diag(iPoint, v_residual.jacobian_i);
+      // }
       }
 
       su2double Solution[MAXNVAR] = {0.0};
