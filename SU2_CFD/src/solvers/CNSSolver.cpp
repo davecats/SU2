@@ -796,7 +796,6 @@ void CNSSolver::BC_Isothermal_Wall_Generic_Blowing(CGeometry* geometry, CSolver*
       const su2double Vel_Infty_Mag = GeometryToolbox::Norm(nDim, Velocity_Inf);
 
       if (config->GetInlet_Profile_From_File()==false) {
-        cout << "YES" << endl;
         if (Kind_Inlet == VELOCITY_BLOW || Kind_Inlet == MASS_FLOW){
           Density = nodes->GetDensity(iPoint);
           Vel_Mag *= Vel_Infty_Mag;
