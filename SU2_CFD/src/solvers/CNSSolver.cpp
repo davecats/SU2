@@ -789,20 +789,25 @@ void CNSSolver::BC_Isothermal_Wall_Generic_Blowing(CGeometry* geometry, CSolver*
       // get variables from marker blowing
       Density = config->GetBlowing_Density(Marker_Tag);      
       Vel_Mag = config->GetBlowing_VelocityMag(Marker_Tag); 
+      cout << "Density: " << Density << endl;
+      cout << "Vel Mag: " << Vel_Mag << endl;
 
       su2double* Velocity_Inf = config->GetVelocity_FreeStreamND();
       const su2double Vel_Infty_Mag = GeometryToolbox::Norm(nDim, Velocity_Inf);
 
-      if (Kind_Inlet == VELOCITY_BLOW || Kind_Inlet == MASS_FLOW){
-        Density = nodes->GetDensity(iPoint);
-        Vel_Mag *= Vel_Infty_Mag;
-      } 
-      else if (Kind_Inlet == MASS_FLOW_BLOW){
-        Density = nodes->GetDensity(iPoint);
-        Vel_Mag /= Density;
-      }
-      else{
-        cout << "Inlet Type not supported by Marker Blowing." << endl;
+      if (config->GetInlet_Profile_From_File()==false) {
+        cout << "YES" << endl;
+        if (Kind_Inlet == VELOCITY_BLOW || Kind_Inlet == MASS_FLOW){
+          Density = nodes->GetDensity(iPoint);
+          Vel_Mag *= Vel_Infty_Mag;
+        } 
+        else if (Kind_Inlet == MASS_FLOW_BLOW){
+          Density = nodes->GetDensity(iPoint);
+          Vel_Mag /= Density;
+        }
+        else{
+          cout << "Inlet Type not supported by Marker Blowing." << endl;
+        }
       }  
       Flow_Dir = blowingNormal;
     
@@ -812,12 +817,13 @@ void CNSSolver::BC_Isothermal_Wall_Generic_Blowing(CGeometry* geometry, CSolver*
           //Density = Inlet_Ttotal[val_marker][iVertex];
           Density = nodes->GetDensity(iPoint);
           Vel_Mag = Inlet_Ptotal[val_marker][iVertex];
+          Vel_Mag *= Vel_Infty_Mag;
         }
         else if (Kind_Inlet == MASS_FLOW_BLOW){ 
           //Density = Inlet_Ttotal[val_marker][iVertex];
           Density = nodes->GetDensity(iPoint);
           su2double Mass_Flow = Inlet_Ptotal[val_marker][iVertex];
-          Vel_Mag /= Density;
+          Vel_Mag = Mass_Flow/Density;
         } 
       }
 
