@@ -789,8 +789,8 @@ void CNSSolver::BC_Isothermal_Wall_Generic_Blowing(CGeometry* geometry, CSolver*
       // get variables from marker blowing
       Density = config->GetBlowing_Density(Marker_Tag);      
       Vel_Mag = config->GetBlowing_VelocityMag(Marker_Tag); 
-      cout << "Density: " << Density << endl;
-      cout << "Vel Mag: " << Vel_Mag << endl;
+      //cout << "Density: " << Density << endl;
+      //cout << "Vel Mag: " << Vel_Mag << endl;
 
       su2double* Velocity_Inf = config->GetVelocity_FreeStreamND();
       const su2double Vel_Infty_Mag = GeometryToolbox::Norm(nDim, Velocity_Inf);
