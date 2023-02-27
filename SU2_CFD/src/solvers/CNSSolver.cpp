@@ -385,175 +385,9 @@ void CNSSolver::BC_HeatFlux_Wall(CGeometry* geometry, CSolver**, CNumerics*, CNu
   BC_HeatFlux_Wall_Generic(geometry, config, val_marker, HEAT_FLUX);
 }
 
-void CNSSolver::BC_HeatFlux_Blowing(CGeometry* geometry, CSolver**, CNumerics*, CNumerics*, CConfig* config,
-                                    unsigned short val_marker) {
-  BC_HeatFlux_Wall_Generic_Blowing(geometry, config, val_marker, BLOWING);
-}
-
 void CNSSolver::BC_HeatTransfer_Wall(const CGeometry* geometry, const CConfig* config,
                                      const unsigned short val_marker) {
   BC_HeatFlux_Wall_Generic(geometry, config, val_marker, HEAT_TRANSFER);
-}
-
-void CNSSolver::BC_HeatFlux_Wall_Generic_Blowing(const CGeometry* geometry, const CConfig* config,
-                                                 unsigned short val_marker, unsigned short kind_boundary) {
-  /*--- Interpret blowing as a moving grid ---*/
-  const bool blowingAsMovingGrid = false;
-
-  /*--- Identify the boundary by string name and get the specified wall
-   heat flux from config as well as the wall function treatment. ---*/
-
-  const bool implicit = (config->GetKind_TimeIntScheme() == EULER_IMPLICIT);
-  const auto Marker_Tag = config->GetMarker_All_TagBound(val_marker);
-
-  /*--- Get the specified wall heat flux, temperature or heat transfer coefficient from config ---*/
-
-  su2double Wall_HeatFlux = 0.0, Tinfinity = 0.0, Transfer_Coefficient = 0.0;
-  if (kind_boundary == BLOWING) {
-    Wall_HeatFlux = config->GetWall_HeatFlux(Marker_Tag) / config->GetHeat_Flux_Ref();
-  } else if (kind_boundary == HEAT_TRANSFER) {
-    /*--- The required heatflux will be computed for each iPoint individually based on local Temperature. ---*/
-    cout << " Not checked yet ";
-    // Transfer_Coefficient = config->GetWall_HeatTransfer_Coefficient(Marker_Tag) *
-    // config->GetTemperature_Ref()/config->GetHeat_Flux_Ref(); Tinfinity =
-    // config->GetWall_HeatTransfer_Temperature(Marker_Tag)/config->GetTemperature_Ref();
-  }
-
-  //  Wall_Function = config->GetWallFunction_Treatment(Marker_Tag);
-  //  if (Wall_Function != WALL_FUNCTION::NONE) {
-  //    SU2_MPI::Error("Wall function treatment not implemented yet", CURRENT_FUNCTION);
-  //  }
-
-  /*--- Jacobian, initialized to zero if needed. ---*/
-  su2double** Jacobian_i = nullptr;
-  if ((dynamic_grid || (kind_boundary == BLOWING)) && implicit) {
-    Jacobian_i = new su2double*[nVar];
-    for (auto iVar = 0u; iVar < nVar; iVar++) Jacobian_i[iVar] = new su2double[nVar]();
-  }
-  /*--- Loop over all of the vertices on this boundary marker ---*/
-
-  SU2_OMP_FOR_DYN(OMP_MIN_SIZE)
-  for (auto iVertex = 0u; iVertex < geometry->nVertex[val_marker]; iVertex++) {
-    const auto iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
-
-    /*--- Check if the node belongs to the domain (i.e, not a halo node) ---*/
-
-    if (!geometry->nodes->GetDomain(iPoint)) continue;
-
-    /*--- If it is a customizable patch, retrieve the specified wall heat flux. ---*/
-
-    if (config->GetMarker_All_PyCustom(val_marker))
-      Wall_HeatFlux = geometry->GetCustomBoundaryHeatFlux(val_marker, iVertex);
-    else if (kind_boundary == HEAT_TRANSFER) {
-      const su2double Twall = nodes->GetTemperature(iPoint);
-      Wall_HeatFlux = Transfer_Coefficient * (Tinfinity - Twall);
-    }
-
-    /*--- Compute dual-grid area and boundary normal ---*/
-
-    const auto Normal = geometry->vertex[val_marker][iVertex]->GetNormal();
-
-    su2double Area = GeometryToolbox::Norm(nDim, Normal);
-
-    su2double UnitNormal[MAXNDIM] = {0.0};
-    for (auto iDim = 0u; iDim < nDim; iDim++) UnitNormal[iDim] = -Normal[iDim] / Area;
-
-    /*--- Apply a weak boundary condition for the energy equation.
-     Compute the residual due to the prescribed heat flux.
-     The convective part will be zero if the grid is not moving. ---*/
-
-    su2double Res_Conv = 0.0;
-    su2double Res_Visc = Wall_HeatFlux * Area;
-
-    /*--- Impose the value of the velocity as a strong boundary
-     condition (Dirichlet). Fix the velocity and remove any
-     contribution to the residual at this node. ---*/
-    su2double blowvel[MAXNDIM];
-    su2double blowveln = 1;
-    if (dynamic_grid) {
-      nodes->SetVelocity_Old(iPoint, geometry->nodes->GetGridVel(iPoint));
-    } else {
-      for (auto iDim = 0u; iDim < nDim; iDim++) {
-        blowvel[iDim] = -UnitNormal[iDim] * blowveln;
-      }
-      nodes->SetVelocity_Old(iPoint, blowvel);
-    }
-
-    for (auto iDim = 0u; iDim < nDim; iDim++) LinSysRes(iPoint, iDim + 1) = 0.0;
-    nodes->SetVel_ResTruncError_Zero(iPoint);
-
-    /*--- If the wall is moving, there are additional residual contributions
-     due to pressure (p v_wall.n) and shear stress (tau.v_wall.n). ---*/
-    if (dynamic_grid) {
-      if (implicit) {
-        for (auto iVar = 0u; iVar < nVar; ++iVar) Jacobian_i[nDim + 1][iVar] = 0.0;
-      }
-
-      const auto Point_Normal = geometry->vertex[val_marker][iVertex]->GetNormal_Neighbor();
-
-      AddDynamicGridResidualContribution(iPoint, Point_Normal, geometry, UnitNormal, Area,
-                                         geometry->nodes->GetGridVel(iPoint), Jacobian_i, Res_Conv, Res_Visc);
-    }
-
-    /*--- Treat the blowing as a moving wall. If the wall is moving, there are
-     additional residual contributions due to pressure (p v_wall.n) and shear
-     stress (tau.v_wall.n). ---*/
-
-    if ((kind_boundary == BLOWING) && blowingAsMovingGrid) {
-      if (implicit) {
-        for (auto iVar = 0u; iVar < nVar; ++iVar) Jacobian_i[nDim + 1][iVar] = 0.0;
-      }
-
-      const auto Point_Normal = geometry->vertex[val_marker][iVertex]->GetNormal_Neighbor();
-
-      AddDynamicGridResidualContribution(iPoint, Point_Normal, geometry, UnitNormal, Area, &blowveln, Jacobian_i,
-                                         Res_Conv, Res_Visc);
-    }
-
-    /*--- Convective and viscous contributions to the residual at the wall ---*/
-
-    LinSysRes(iPoint, nDim + 1) += Res_Conv - Res_Visc;
-
-    /*--- Enforce the no-slip boundary condition in a strong way by
-     modifying the velocity-rows of the Jacobian (1 on the diagonal).
-     And add the contributions to the Jacobian due to energy. ---*/
-
-    if (implicit) {
-      if (kind_boundary == BLOWING) {
-        /*--- It is necessary to zero the jacobian entries of the energy equation. ---*/
-        if (!dynamic_grid)
-          for (auto iVar = 0u; iVar < nVar; ++iVar) Jacobian_i[nDim + 1][iVar] = 0.0;
-
-        const su2double oneOnRho = 1.0 / nodes->GetDensity(iPoint);  // We probably have to set the density, right??
-        const su2double oneOnCv = (Gamma - 1.0) / config->GetGas_ConstantND();
-        const su2double Vel2 = blowveln * blowveln;
-        const su2double dTdrho = oneOnRho * (-Tinfinity + oneOnCv * 0.5 * Vel2);
-        const su2double dTdrhoe = oneOnCv * oneOnRho;
-
-        /*--- Total specific energy: e=c_v*T+1/2*v^2 => T=1/c_v(rho*e/rho - 1/2||rho v||^2/rho^2).
-        Together with cv=R/(gamma-1) the following Jacobian contributions for the energy equation can be derived. ---*/
-        Jacobian_i[nDim + 1][0] += Transfer_Coefficient * dTdrho * Area;
-
-        for (unsigned short iDim = 0; iDim < nDim; iDim++)
-          Jacobian_i[nDim + 1][iDim + 1] -= Transfer_Coefficient * dTdrhoe * nodes->GetVelocity(iPoint, iDim) * Area;
-
-        Jacobian_i[nDim + 1][nDim + 1] += Transfer_Coefficient * dTdrhoe * Area;
-      }
-      if (dynamic_grid || (kind_boundary == BLOWING)) {
-        Jacobian.AddBlock2Diag(iPoint, Jacobian_i);
-      }
-
-      for (auto iVar = 1u; iVar <= nDim; iVar++) {
-        auto total_index = iPoint * nVar + iVar;
-        Jacobian.DeleteValsRowi(total_index);
-      }
-    }
-  }
-  END_SU2_OMP_FOR
-
-  if (Jacobian_i)
-    for (auto iVar = 0u; iVar < nVar; iVar++) delete[] Jacobian_i[iVar];
-  delete[] Jacobian_i;
 }
 
 void CNSSolver::BC_HeatFlux_Wall_Generic(const CGeometry* geometry, const CConfig* config, unsigned short val_marker,
@@ -813,15 +647,25 @@ void CNSSolver::BC_Isothermal_Wall_Generic_Blowing(CGeometry* geometry, CSolver*
       
       if (config->GetInlet_Profile_From_File()) {
         if (Kind_Inlet == VELOCITY_BLOW || Kind_Inlet == MASS_FLOW){
-          //Density = Inlet_Ttotal[val_marker][iVertex];
+          Density = Inlet_Ttotal[val_marker][iVertex];
           Density = nodes->GetDensity(iPoint);
+          
+	  //Pressure = nodes->GetPressure(iPoint);
+          //SoundSpeed2 = Gamma * Pressure / V_domain[nDim + 2];
+	  //Density = Pressure*Gamma/SoundSpeed2;
+
           Vel_Mag = Inlet_Ptotal[val_marker][iVertex];
           Vel_Mag *= Vel_Infty_Mag;
         }
         else if (Kind_Inlet == MASS_FLOW_BLOW){ 
-          //Density = Inlet_Ttotal[val_marker][iVertex];
+          Density = Inlet_Ttotal[val_marker][iVertex];
           Density = nodes->GetDensity(iPoint);
-          su2double Mass_Flow = Inlet_Ptotal[val_marker][iVertex];
+          
+	  //Pressure = nodes->GetPressure(iPoint);
+          //SoundSpeed2 = Gamma * Pressure / V_domain[nDim + 2];
+	  //Density = Pressure*Gamma/SoundSpeed2;
+
+	  su2double Mass_Flow = Inlet_Ptotal[val_marker][iVertex];
           Vel_Mag = Mass_Flow/Density;
         } 
       }
@@ -926,7 +770,7 @@ void CNSSolver::BC_Isothermal_Wall_Generic_Blowing(CGeometry* geometry, CSolver*
       for (auto iDim = 0; iDim < nDim; iDim++) Solution[iDim + 1] = V_inlet[iDim + 1] * Density;
       Solution[nDim + 1] = Energy * Density;
 
-      for (auto iDim = 0u; iDim < nVar - 1; iDim++) {
+      for (auto iDim = 1u; iDim < nVar - 1; iDim++) {
         nodes->SetSolution_Old(iPoint, iDim, Solution[iDim]);
         LinSysRes(iPoint, iDim) = 0.0;  // blowingVelocity[iDim];
         // LinSysRes(iPoint, 1) = V_inlet[1];
@@ -934,7 +778,7 @@ void CNSSolver::BC_Isothermal_Wall_Generic_Blowing(CGeometry* geometry, CSolver*
         nodes->SetVal_ResTruncError_Zero(iPoint, iDim);
       }
 
-      for (auto iVar = 0u; iVar <= nDim; iVar++) {
+      for (auto iVar = 1u; iVar <= nDim; iVar++) {
         auto total_index = iPoint * nVar + iVar;
         Jacobian.DeleteValsRowi(total_index);
       }
