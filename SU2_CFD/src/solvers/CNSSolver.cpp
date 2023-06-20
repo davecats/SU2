@@ -581,6 +581,23 @@ void CNSSolver::BC_Isothermal_Wall_Generic_Blowing(CGeometry* geometry, CSolver*
 
   su2double VelMagnitude2_i, *turb_ke, StaticEnergy, Kappa, Chi, Enthalpy;
 
+  /*---- Read the temperature to impose in the blowing region from file (if exists) ---*/
+  /*---- (If it does not exist, do not impose temperature) ----*/
+  ifstream infile;    
+  if (Imposed_Temperature == 0) {
+        infile.open("blowingTemperature.dat");
+  	if(infile.fail())
+    	{
+       	 	Imposed_Temperature = -99.0;
+		cout << "Free temperature in the blowing regions \n";
+   	 }
+  	else
+    	{
+       		infile >> Imposed_Temperature;
+		cout << "Setting temperature in the blowing regions: " << Imposed_Temperature << "\n";
+		infile.close(); 
+    	}
+  }
   /*--- Loop over all the vertices on this boundary marker ---*/
 
   SU2_OMP_FOR_DYN(OMP_MIN_SIZE)
@@ -704,6 +721,14 @@ void CNSSolver::BC_Isothermal_Wall_Generic_Blowing(CGeometry* geometry, CSolver*
       Energy = Pressure / (Density * Gamma_Minus_One) + 0.5 * Vel_Mag * Vel_Mag;
       if (tkeNeeded) Energy += GetTke_Inf();
 
+
+      if (Vel_Mag > 0 && Imposed_Temperature>0)  {                                 // XXX
+      Temperature = Imposed_Temperature;
+      Density = Pressure / (Gas_Constant * Temperature);  // XXX
+      Energy =  Temperature * Gas_Constant / Gamma_Minus_One + 0.5 * Vel_Mag * Vel_Mag;
+      }                                             // XXX
+
+
       // >>>
       // Energy = nodes->GetEnergy(iPoint);
 
@@ -770,7 +795,7 @@ void CNSSolver::BC_Isothermal_Wall_Generic_Blowing(CGeometry* geometry, CSolver*
       for (auto iDim = 0; iDim < nDim; iDim++) Solution[iDim + 1] = V_inlet[iDim + 1] * Density;
       Solution[nDim + 1] = Energy * Density;
 
-      for (auto iDim = 1u; iDim < nVar - 1; iDim++) {
+      for (auto iDim = (1u - int((Vel_Mag > 0) && (Imposed_Temperature>0))); iDim < (nVar - 1+int((Vel_Mag > 0) && (Imposed_Temperature>0))); iDim++) {
         nodes->SetSolution_Old(iPoint, iDim, Solution[iDim]);
         LinSysRes(iPoint, iDim) = 0.0;  // blowingVelocity[iDim];
         // LinSysRes(iPoint, 1) = V_inlet[1];
@@ -778,7 +803,7 @@ void CNSSolver::BC_Isothermal_Wall_Generic_Blowing(CGeometry* geometry, CSolver*
         nodes->SetVal_ResTruncError_Zero(iPoint, iDim);
       }
 
-      for (auto iVar = 1u; iVar <= nDim; iVar++) {
+      for (auto iVar = (1u -int((Vel_Mag > 0) && (Imposed_Temperature>0))); iVar <= (nDim+int((Vel_Mag > 0) && (Imposed_Temperature>0))) ; iVar++) {
         auto total_index = iPoint * nVar + iVar;
         Jacobian.DeleteValsRowi(total_index);
       }

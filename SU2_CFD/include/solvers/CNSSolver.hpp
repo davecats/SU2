@@ -42,6 +42,7 @@ private:
   vector<su2double> Buffet_Metric;          /*!< \brief Integrated separation sensor for each boundary. */
   vector<vector<su2double> > Buffet_Sensor; /*!< \brief Separation sensor for each boundary and vertex. */
   su2double Total_Buffet_Metric = 0.0;      /*!< \brief Integrated separation sensor for all the boundaries. */
+  su2double Imposed_Temperature = 0.0;      // XXX
 
   /*!
    * \brief A virtual member.
